@@ -5,7 +5,7 @@
  2. I will workout 
  3. No Social Media (for atleast 30 days)
  4. I will journal 
- FOR THE NEXT 100 DAYS
+ *FOR THE NEXT 100 DAYS*
 
 
 #### Start Date
