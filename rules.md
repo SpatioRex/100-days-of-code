@@ -1,11 +1,11 @@
 # Rules of the 100 Days Of Code Challenge
 
-## Main Commitment
- 1. I will code for at least an hour 
- 2. I will workout 
- 3. No Social Media (for atleast 30 days)
- 4. I will journal 
- *FOR THE NEXT 100 DAYS*
+## Main Commitment 
+ 1. I will code for at least an hour a day.
+ 2. I will workout everyday.
+ 3. No Social Media (for atleast 30 days).
+ 4. I will journal my experiences throughout the 100 days.
+ 
 
 
 #### Start Date
