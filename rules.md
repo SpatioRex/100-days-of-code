@@ -14,11 +14,11 @@ August 1st, 2022
 ## Additional Rules
 1. No Social Media for 30 days.
 2. Youtube is a SECONDARY resource.
-3. I will push code to GitHub every day so that anyone can see my progress.
-4. I will update the (Log)[log.md] with the day's progress and provide a link so that others can see my progress.
-5. I will work on real projects, facing real challenges. The time spent doing tutorials, online courses and other similar resources will NOT count towards this challenge. (If you've just started learning to code, read [FAQ](FAQ.md))
-Must complete 40 Push ups and 50 Squats OR 8 drop sets of Leg Lifts and 50 squats.
-I will keep a Daily Journal of how I feel and what progress I recognize or lack thereof.
+3. Push code to GitHub every day so that anyone can see my progress.
+4. Update the (Log)[log.md] with the day's progress and provide a link so that others can see my progress.
+5. Work on real projects, facing real challenges. The time spent doing tutorials, online courses and other similar resources will NOT count towards this challenge. (If you've just started learning to code, read [FAQ](FAQ.md))
+6. Must complete 40 Push ups and 50 Squats OR 8 drop sets of Leg Lifts and 50 squats.
+7. Keep a Daily Journal of how I feel and what progress I recognize or lack thereof.
 
 
 
