@@ -28,4 +28,4 @@ Managed to get one step farther by downloading the proper packets and drivers fo
 I am struggling to figure out how to debug my SQL, i have downloaded the shell and additional extensions and i have looked around the internet and youtube to no avail. I was able to get one step farther than yesterday but i wasnt able to complete the debugging process that i started yesterday. I spent more time understanding code and coding than yesterday. Although im still having trouble figuring out Git it is proving usefully efficient as i leanr more and more about it. I feel pretty good about my programming journey so far and look forward to trying to work though this debugging problem. I intend on asking someone at the library if they have any resources that could better help solve my problem. 
 
 **Link(s) to work**
-1. [Creating Database](https://www.freecodecamp.com/challenges/
+1. [Creating Database](https://github.com/SpatioRex/just-a-test/commit/e8e75f40a567707ae25f5ec3b0d5efcd203f55f1)
