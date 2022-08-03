@@ -18,13 +18,14 @@
 
 **Link(s) to work**: [Null](Unable to figure out how to link the 6 lines of failed code i did today. But it was a direct copy of a tutorial i was following and couoldnt seem to make it work on my end. 
 
-### Day 2: June 27, Monday
+### Day 2: August 3rd, Wednesday 2022
 
-**Today's Progress**: I've gone through many exercises on FreeCodeCamp.
+
+**Today's Progress**:
+Managed to get one step farther by downloading the proper packets and drivers for mysql. Still stuck at finding a debugger for SQL in order to run programs for database.
 
 **Thoughts** 
+I am struggling to figure out how to debug my SQL, i have downloaded the shell and additional extensions and i have looked around the internet and youtube to no avail. I was able to get one step farther than yesterday but i wasnt able to complete the debugging process that i started yesterday. I spent more time understanding code and coding than yesterday. Although im still having trouble figuring out Git it is proving usefully efficient as i leanr more and more about it. I feel pretty good about my programming journey so far and look forward to trying to work though this debugging problem. I intend on asking someone at the library if they have any resources that could better help solve my problem. 
 
 **Link(s) to work**
-1. [Find the Longest Word in a String](https://www.freecodecamp.com/challenges/find-the-longest-word-in-a-string)
-2. [Title Case a Sentence](https://www.freecodecamp.com/challenges/title-case-a-sentence)
-
+1. [Creating Database](https://www.freecodecamp.com/challenges/
