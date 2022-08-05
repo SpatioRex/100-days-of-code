@@ -41,3 +41,10 @@ This is not something you do for one hour a day, stop and pick back up where you
 
 **Link(s) to work**
 Null
+
+### Day 4: Thursday August 5th, 2022
+Startered a course on python from Freecodecamp.org, following along on their youtube live streat has helped me tremdiously. By giving me a baseline to start at and showing me very key things like keywords and explaining with understanding in mind opposed to "if it does make sense google it." and moving on like everyone else. I only got about an hour into the course but i was able to understand way more than when i woke up and i have an understanding on what i should be trying to learn to make this experience much more fluid. 
+
+**Thoughts**
+I watched a video about some indian guy learning and aapplying python in 30 days and he laid out a pretty good framework on what to learn and how to learn it in order to have a chance at learning prython in 30 days. After taking his advice and finding a course i was able to get a couple lines of code down today like i promised. but more importantly i felt like i was absorbing the info her was sharing and it helpped me stay excited about learning computer science as a whole on just programming. Today i will make a list of pythons keywords and define what they do and practice memorizing them to help prepare me for tommorrow. 
+
