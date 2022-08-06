@@ -48,3 +48,9 @@ Startered a course on python from Freecodecamp.org, following along on their you
 **Thoughts**
 I watched a video about some indian guy learning and aapplying python in 30 days and he laid out a pretty good framework on what to learn and how to learn it in order to have a chance at learning prython in 30 days. After taking his advice and finding a course i was able to get a couple lines of code down today like i promised. but more importantly i felt like i was absorbing the info her was sharing and it helpped me stay excited about learning computer science as a whole on just programming. Today i will make a list of pythons keywords and define what they do and practice memorizing them to help prepare me for tommorrow. 
 
+** Links To Work **
+https://github.com/SpatioRex/database.py/compare/main...SpatioRex-patch-1?expand=1#diff-b38c83797d3ce23222d564b97f3abe073c27d64a209caf1cdcbd33accbd128a9
+
+** Link to Python Course**
+https://www.youtube.com/watch?v=z2k9Jh3jDVU&list=PLWKjhJtqVAbkmRvnFmOd4KhDdlK1oIq23&index=1
+(paused at 1:02:19)
