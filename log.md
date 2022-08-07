@@ -43,6 +43,8 @@ This is not something you do for one hour a day, stop and pick back up where you
 Null
 
 ### Day 4: Thursday August 5th, 2022
+
+**Today's Progress**:
 Startered a course on python from Freecodecamp.org, following along on their youtube live streat has helped me tremdiously. By giving me a baseline to start at and showing me very key things like keywords and explaining with understanding in mind opposed to "if it does make sense google it." and moving on like everyone else. I only got about an hour into the course but i was able to understand way more than when i woke up and i have an understanding on what i should be trying to learn to make this experience much more fluid. 
 
 **Thoughts**
@@ -54,3 +56,17 @@ https://github.com/SpatioRex/database.py/compare/main...SpatioRex-patch-1?expand
 ** Link to Python Course**
 https://www.youtube.com/watch?v=z2k9Jh3jDVU&list=PLWKjhJtqVAbkmRvnFmOd4KhDdlK1oIq23&index=1
 (paused at 1:02:19)
+
+### Day 5: Thursday August 6th, 2022
+
+**Today's Progress**:
+Picked up where i left off yesterday finished the video and was able to follow along and workout the bugs i was running into on my own. sure i needed google and stack overfllow but i think thats part of learning how to be resourceful in this. i did end up writing out all the key words and what they do, but i think that i should take it a step farther and organize them into categories of what they do and what colors they are expected to be to better help the proccess of memorizing them. Once you know what everything does it will be easier to call functions and build full operations. Looking forward to starting the next video. Alothough i have notied that im going to have to expand on this hour a day if i really want to get good so i will have to find a quiet place to actually code throughout the day besides the library, which only gives me 3 hours a day in a study room. will i use 2 hours of it a day to code like i did today (, googling, and searching stack overflow to debug my code instead of trying to copy line for line character for character doubled my time today.)?
+
+**Thoughts**
+Git is still the hardest part about this whole experience. its almost useslessly complicted for someone like me who just builds on vs code and soit can be saved/logged on github locally but perferably online. I want to be able to seamlessly create a repo, pull, and commit to them and also be able to collaborate with others fluidly instead of spending an hour trying to retrace my steps looking for where i didnt commit or what not. I can feel the progress, the question "is my code efficient" makes perfect sense now where as yesterday i would have guessed and still been confused. Today i know what it means " have i laid out the most simple yet computable code or is there some unneeded steps?"
+
+***Links To Work***
+https://github.com/SpatioRex/database.py/blob/main/Untitled-1.py
+
+***Link To Python Course***
+https://www.youtube.com/watch?v=4UuMrebbwIo&list=PLWKjhJtqVAbkmRvnFmOd4KhDdlK1oIq23&index=2
