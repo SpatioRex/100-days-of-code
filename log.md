@@ -1,7 +1,6 @@
 # 100 Days Of Code - Log
 
 ### Day 0: Monday, August 1st 2022
-##### 
 
 **Today's Progress**: Began figuring out what values are needed to build a database to track Who has recieved what services, and when they recieved them. 
 
@@ -70,3 +69,20 @@ https://github.com/SpatioRex/database.py/blob/main/Untitled-1.py
 
 ***Link To Python Course***
 https://www.youtube.com/watch?v=4UuMrebbwIo&list=PLWKjhJtqVAbkmRvnFmOd4KhDdlK1oIq23&index=2
+
+
+### Day 9: Monday, August 8th 2022 ###
+
+**Today's Progress**:
+started the second section of the course and was able to only get through about 25 minutes of it due to the many times i paused to debug my own code or to try and go ahead and solve upcoming problems. 
+
+**Thoughts**
+Today was the worst of them all, i only made it about 25 minutes through the course today instead of normally getting through at least 45 minutes worth. Im going to attribute todays prgress to three factors. My lack of quality sleep, my decision to take sunday off, and the constant thought of " why am i leanring to code when i want a Saas? i could/should be focusing on building out the intricate details of the project and solidifying funding to have a professional just build it and i get it to the people who will need it. But i also dont want to give up this challenge. i enenjoy it but the fine details of my life are starting to take a tol on me. i have been able to maintaine the workout regimen but the idea of sitting and going through a course with no headphones and limited internet is very dauntin. Im interested and really believe computer programming is the future, but im also nervous that by spending so much time learning how to build a software from scrate, i could be using that same time to acutally build a no code or low code to produce a minimum viable product then begin reaching out to potential clients. Tomorrow will be better!
+
+
+***Links To Work***
+https://github.com/SpatioRex/database.py/blob/main/Untitled-1.py
+
+*** Link To Course***
+https://www.youtube.com/watch?v=4UuMrebbwIo
+(Paused at 25 minutes)
