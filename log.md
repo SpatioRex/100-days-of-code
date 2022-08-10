@@ -86,3 +86,21 @@ https://github.com/SpatioRex/database.py/blob/main/Untitled-1.py
 *** Link To Course***
 https://www.youtube.com/watch?v=4UuMrebbwIo
 (Paused at 25 minutes)
+
+
+
+### Day 10: Tuesday, August 9th 2022 ###
+
+**Today's Progress**
+was able to learn list and the random function. had a great time learning how to organize numbers in a list and how to increment/decrament numbers in general. made more than double yesterdays progress in about an 2 hours.
+
+**Thoughts**
+
+Today was full of roses and excitment. as the 10% marker i have really had a great day in reguards to coding and i was on the fence about even doing it today. I keep seeing these "No Code" projects and stuff but i honestly am very intruged with learning how to communicate with a computer. im not just learning programming to make a software, retire and push a Bugatti till my days end. Sure that is part of the future but i really do see the benefits of knowing how to manipulate computers to your will. Today was probably the longest i spent sitting and coding/debugging and i honestly had so much fun trying to get my print messages to show up. 
+
+***Links To Work*** 
+https://github.com/SpatioRex/database.py/blob/main/Untitled-1.py
+
+*** Link To Course***
+https://www.youtube.com/watch?v=4UuMrebbwIo&list=PLWKjhJtqVAbkmRvnFmOd4KhDdlK1oIq23&index=2&t=1500s
+(Stopped at 1:25:15)
