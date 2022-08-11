@@ -104,3 +104,21 @@ https://github.com/SpatioRex/database.py/blob/main/Untitled-1.py
 *** Link To Course***
 https://www.youtube.com/watch?v=4UuMrebbwIo&list=PLWKjhJtqVAbkmRvnFmOd4KhDdlK1oIq23&index=2&t=1500s
 (Stopped at 1:25:15)
+
+### Day 11: Wednesday, August 10th 2022 ###
+
+**Today's Progress**
+finished second video of the course and began learning how to build times tables and organize lists of numbers into another list.
+
+
+**Thoughts**
+
+Today i had a pretty good time, i sped the course up to 1.5x speed cause he was talking to slow and i was trying to get through the content. Ive noticed im ready to get it going i dont like the off topic stuff. and i dont like going too slow so by speeding up the content i can listen closer and when i do pause i dont lose as much time as i would if it was playing at a normal playback speed. Today i made it aboout an hour and a half and had a pretty good time.
+
+***Links To Work*** 
+https://github.com/SpatioRex/database.py/blob/main/Untitled-1.py
+
+
+*** Link To Course***
+https://www.youtube.com/watch?v=DhdOKh5Issw&list=PLWKjhJtqVAbkmRvnFmOd4KhDdlK1oIq23&index=3&t=2361s
+(Paused at 39:00)
