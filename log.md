@@ -122,3 +122,19 @@ https://github.com/SpatioRex/database.py/blob/main/Untitled-1.py
 *** Link To Course***
 https://www.youtube.com/watch?v=DhdOKh5Issw&list=PLWKjhJtqVAbkmRvnFmOd4KhDdlK1oIq23&index=3&t=2361s
 (Paused at 39:00)
+
+
+### Day 12: Thursday, August 11th 2022 ###
+
+**Today's Progress**
+Finished learning about prime numbers, and building a number genorating guessing game. began learning enumerating and how to unpack them.
+
+**Thoughts**
+Today dragged on, not sure if its because i didnt get a study room and just sat on the third floor of the librar. sure it was filled with more distractions, but im starting to think this instructor is BULLSHITTIN. Granted im happy hes taking his time to help those on the livestream with him and have little conversations but i cannot sand the amount of bugs and side convos. Sure well all have typos and bugs but it feels like hes just in a rush and he ends up messing up and costing more time then the side convos have no substance or releavence to the course. Im to the point that i wish i could just download the python language into my own head and just do it cause this shit feels so slow. although im excited for where i could be in 12 months, day to day are vastly different experiances. I've even been using the Mimo app to help understand the language better and faster because i got a feeling this is one of the tougher parts of programming (understanding the fundamentals). Hopefully tommorrow is better. if not we will continue to push, reguardless.
+
+***Links To Work***
+https://github.com/SpatioRex/database.py/blob/main/Untitled-1.py
+
+*** Link To Course***
+https://www.youtube.com/watch?v=DhdOKh5Issw&t=2362s
+(Completed)
