@@ -138,3 +138,13 @@ https://github.com/SpatioRex/database.py/blob/main/Untitled-1.py
 *** Link To Course***
 https://www.youtube.com/watch?v=DhdOKh5Issw&t=2362s
 (Completed)
+
+
+### Day 13: Friday, August 12th 2022 ###
+
+**Today's Progress**
+
+No coding was done today, worked on wireframe for software.
+
+**Thoughts**
+Yesterday was such a drag that i just worked on my wireframe for the app. i havent been feeling this shit at all but i think its the over arching theme of my life right now that im really not feeling. I gotta get on my feet man.
