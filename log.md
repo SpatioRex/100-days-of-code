@@ -148,3 +148,6 @@ No coding was done today, worked on wireframe for software.
 
 **Thoughts**
 Yesterday was such a drag that i just worked on my wireframe for the app. i havent been feeling this shit at all but i think its the over arching theme of my life right now that im really not feeling. I gotta get on my feet man.
+
+*** Link To Work***
+https://github.com/SpatioRex/8-5-22/blob/main/Wireframe.bmpr
