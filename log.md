@@ -151,3 +151,21 @@ Yesterday was such a drag that i just worked on my wireframe for the app. i have
 
 *** Link To Work***
 https://github.com/SpatioRex/8-5-22/blob/main/Wireframe.bmpr
+
+
+
+### Day 14: Monday, August 15th 2022 ###
+
+**Today's Progress**
+
+Built out more of my wireframe
+
+
+**Thoughts**
+
+No coding has been do in 3 days. A deep stray away from my goals and ambitions. I realize learning to code and starting a software company probably isnt the most ideal thing do to at the same time. logically speaking it doesnt really make sense to do that seeing as i would be starting from ground zero. Sure i dont know much about businness, software, or coding. But, im very confident i can learn them along the way. although, my thoughts on this are more about sensiblitity and getting started on a journey as soon as possible. Learning to code is pretty daunting yet very exciting and it surely inspires me with what i can do with it. I dont want to spend all this time leanring to code then eventually give up on believing in my idea or worse (like my other ideas,) someone else bring it to market. Im learning that its more about being first and being willing to work on everything in real time. If i were to focus on learning to code for a year or two so i could build this software and be able to add and scrape pieces of it when needed that would be smooth. but as far behind as the homeless system is, all it takes is one person with a little intrest and they will easily come in and DISRUPT the homeless intake system and eventually build it out to what i intend on doing and i would still be in the sidelines. i cant let that happen, i have a MAGNIFICENT idea, ive began to build out a wireframe so i can show my idea to prospected clients and recieve funding to build out my software OR reach out to potential investors. But first i just have to have a great wireframe, clients who like the idea and are willing to be early adoptors, and funding to bring it to life. Currently in step 1 and building a viable product that does one thing but will expand as it becomes more fundamental.
+The core functionality is a more seamless shelter intake application. evevntually will build into shelter application that will store homeless social services, and allow you to schedule your next social service whatever it may be.
+
+
+***Links to Work***
+https://github.com/SpatioRex/8-5-22/blob/main/Wireframe.bmpr
