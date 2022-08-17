@@ -169,3 +169,19 @@ The core functionality is a more seamless shelter intake application. evevntuall
 
 ***Links to Work***
 https://github.com/SpatioRex/8-5-22/blob/main/Wireframe.bmpr
+
+
+### Day 15: Monday, August 16th 2022 ###
+
+**Today's Progress**
+
+Built out more of my wireframe.
+pondered how a telephone works (conneted to a server, when you dial a number it is directed to another server with that number in the database, alarts that number and connects it to the calling device. )i havent figured out how the voice gets through. And i dont even know if my thoughts are right, i dont want to know yet. Im intruged with the mystery, hopefully i can iron it out mentally.
+
+
+**Thoughts**
+
+Today i continued building my wireframe and came to the conclusion that ill need to start somewhere minute like an "Intake Application system that allows users to apply for services and recieve a position in line". the other features are just extras for expansion and to sensibly raise prises. First i must create a complete clickable Intake Software, then find early adopters to show and recieve feedback. to be able to do that ill need to create a list of questions to ask to ensure value is provided. then ill have to begin the building process, during that process ill have to reach out to developers and find out how much theyll charge to build the software. Once ive figured out how much it will cost to build, i will have to find the money either through investors,Banks, or Finesse. The proirity is to ensure value is provieded to early adobters through wireframe clickable software. Once value is confirmed all that is left is to build and bring to market. once brought to market, marketing to shleters shouldnt be to difficult with proven results of increased efficentcy. In order to measure effeciency, bench marking will have to be done before emplimenting the system. Ill have to figure out just what i expect to happen to help provide value. Ill figure that out by checking changes that occured when FoodStamps(and anything like it) application went online. 
+
+***Links to Work***
+https://github.com/SpatioRex/8-5-22/tree/main/8:5:22
