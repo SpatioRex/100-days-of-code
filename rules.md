@@ -1,4 +1,4 @@
-# Rules of the 100 Days Of Code Challenge
+# Rules of the 100 Days Of Progress Challenge
 
 ## Main Commitment 
  1. I will code or work through coding problems for at least an hour a day.
@@ -16,8 +16,8 @@ August 1st, 2022
 2. Youtube is a SECONDARY resource.
 3. Push code to GitHub every day so that anyone can see my progress.
 4. Update the (Log)[log.md] with the day's progress and provide a link so that others can see my progress.
-5. Work on real projects, facing real challenges. The time spent doing tutorials, online courses and other similar resources will NOT count towards this challenge. (If you've just started learning to code, read [FAQ](FAQ.md))
-6. Must complete 40 Push ups and 50 Squats OR 8 drop sets of Leg Lifts and 50 squats.
+5. Work on personal progression through digital means. I.e Working on Saas, Building a random project, Taking a course, Learning any form of digital communication. (Coding, Digital Art, Digital Production, etc.)(FAQ.md))
+6. Must complete daily workout routine.
 7. Keep a Daily Journal of how I feel and what progress I recognize or lack thereof.
 
 
@@ -38,6 +38,12 @@ Push-ups https://www.youtube.com/watch?v=rruHM_sB2Hc
 Hanging Leg Raises https://www.youtube.com/watch?v=or7KtIgxchE
 Bodyweight Squats https://www.youtube.com/watch?v=guG1LT7ejDU
 Pull-Ups https://www.youtube.com/watch?v=iBtL9nX2qOs
+
+## Workout Progress ##
+Month 1
+50 push-ups, 50 bodyweight squats.
+15 pull-ups, 50 bodyweight squats.
+Month 2
 
 ## Contents
 * [Rules](rules.md)
