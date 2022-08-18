@@ -185,3 +185,25 @@ Today i continued building my wireframe and came to the conclusion that ill need
 
 ***Links to Work***
 https://github.com/SpatioRex/8-5-22/tree/main/8:5:22
+
+
+
+### Day 16: Monday, August 17th 2022 ###
+
+**Today's Progress**
+Found my application already built on github.
+
+**Thoughts**
+I almost didnt do anything today, and today is the day i made what im gonna call the most progress yet. I was able to find an app called EasyQ that does EXACTLY what im tryign to accomplish. After finding out that i am not the innovator i assumed i was, i looked for the source code on github. Low and behold, the app and all its source code glory was sitting there waiting to be found by a Saas devloper in need. Now that i have found the app/code needed for my software. Now all i have to do is get it onto my local machine, and edit it how i want it to look, get a domain name for it, and test out my product. i wasnt sure how i ws going to actually bring this idea to life, but as the days go on. Im figuring out that if you put one foot in front of the other your bound to go somewhere. I was stuck earlier on what to do to push the progress forward. So i made a list of what is needed to go from sitting in a park, to coming up with ideas, all the way to growth and expansions. once i did that i started to understand more of what im trying to do. Now my next steps are to copy the repo to my machine. Edit the repo to fit my niche. Show Early adopters and look for feedback. Edit, and update early adopters. Finally bring to market.
+Something else i was thinging about today as i walked into the library was, changing the rules to this challange to better fit my current goals. I have been thinking about instead of "100-Days-Of-Code" maybe "100-Days-Of-Progress" and change the rules to 1 hour of progress a day everyday. Coding seems very strict for me when coding isnt the end goal, a software company is. Sure im interested in learning to code and all it has to offer, but i think too much time is passing by and im taking everything for granted. If i work hard enough at progressing, I could easily be a millionaire by 30. That is 4 years of progress, and it all starts with 100 days. Im still not getting on social media until Sept 1st. even then ill be doing some purging now that i know what i want to see opposed to just wanting to be entertained. Working out everyday has surely been a task in itself but a much more fluid one than coding, so i will surely be keeping that up.
+
+## Next Steps##
+Clone repo to local machine.
+Learn how to display repo onto webserver.
+Edit repo to fit niche.
+Show to early adopters for feedback.
+Implement feedback.
+take to market
+
+***Links To Work***
+https://github.com/Shreypandey/EasyQ.git
