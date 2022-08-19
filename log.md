@@ -207,3 +207,25 @@ take to market
 
 ***Links To Work***
 https://github.com/Shreypandey/EasyQ.git
+
+
+
+
+### Day 17: Wendnesday, August 18th 2022 ###
+
+**Today's Progress**
+Cloned repo for software to my local machine and organized it so i could update the info into my own repo opposed to pushing it to the original branch.
+
+**Thoughts**
+Surely didnt take an hour to localize the code onto my machine. The idea of having to go through the code and cater it to my idea is VERY daunting and i think i let that get the best of me. at one point i seen i had an hour left at the library before it closed and i just commited to at least getting the repo localized so i didnt lose too much momentum of progress. Im more than anxious about the idea of going through java and editing it to my liking. But those that will, will. Those that wont, will find a reason not to. 
+
+## Next Steps##
+Find where the webserver is pointing and find out how to get it to point somewhere else.
+Become more fluent with sections needed to edit.
+Edit repo to niche needs.
+Show early adopters.
+Implement feedback.
+Take to market.
+
+## Link To Work##
+https://github.com/SpatioRex/Saas.git
