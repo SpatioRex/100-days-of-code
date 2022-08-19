@@ -1,0 +1,462 @@
+*
+{
+    font-family: sans-serif,arial;
+}
+
+body
+{
+    background: #FFFFFF;
+    color: #FFF;  
+}
+
+#cover
+{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1000px;
+    background: black;
+    opacity: 0.6;
+    z-index: 20000;
+    border: 1px solid #000000;
+    display: none;
+
+}
+
+#loginForm
+{
+    background: linear-gradient(#007DA8,#3366FF);
+    padding: 2%;
+    border-radius: 7px;
+    border: 1px solid #000000;
+    z-index: 300000;
+    position: fixed;
+    top: 30%;
+    left: 30%;
+    width: 40%;
+    display: none;
+}
+
+#signupForm
+{
+    background: linear-gradient(#007DA8,#3366FF);
+    padding: 2%;
+    border-radius: 7px;
+    border: 1px solid #000000;
+    z-index: 300000;
+    position: absolute;
+    top: 1%;
+    left: 30%;
+    width: 40%;
+    height: auto;
+    display: none;
+}
+
+#header
+{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    background: linear-gradient(#007DA8,#3366FF);
+    z-index: 1000;
+    font-size: 100%;
+}
+
+#logo
+{
+ position: fixed;
+ top: 0;
+ left: 3%;
+ z-index: 3000;
+ color: #FFF;
+ font-size: 250%;
+ font-family: 'Pacifico', cursive;   
+}
+
+
+#searchForm
+{
+    position: absolute;
+    left: 40%;
+    top: 20%;
+    width: 25%;
+    float: left;
+}
+
+#searchField
+{
+    width: 80%;
+}
+
+#searchButton
+{
+    width: 18%;
+}
+
+
+
+#customerForm
+{
+    
+    width: 100%;
+    top: 0%;
+    left: 125%;
+    position: absolute;
+    height: 80px;
+    float: right;
+    text-align: center;
+    cursor: pointer;
+}
+
+table
+{
+
+
+}
+
+td
+{
+    padding-left: 30px;
+    padding-top: 4%;
+    font-size: 80%;
+}
+
+td:hover
+{
+    opacity: 0.8;
+}
+
+#trending
+{
+    border: 1px solid #C0C0C0;
+    position: absolute;
+    width: 30%;
+    height: 550px;
+    top: 16%;
+    left: 69%;
+    overflow-y: scroll;
+    border-radius: 7px;
+}
+
+.trendingItem
+{
+    position: relative;
+    text-align: center;
+    padding-top: 3%;
+    width: 100%;
+    height: 50px;
+    color: #007da8;
+    border-bottom: 1px solid #C0C0C0;
+    font-size: 80%;
+}
+
+.trendingItem:hover
+{
+    cursor: pointer;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.dood
+{
+    color: #007da8;
+    font-size: 250%;
+    font-family: 'Bangers',cursive;
+}
+
+#dood1
+{
+    position: absolute;
+    top: 16%;
+    left: 2%;
+}
+
+#dood2
+{
+    position: absolute;
+    top: 56%;
+    left: 46%;
+    transform: rotate(90deg);
+    color: #F64C72;
+}
+
+#dood3
+{
+    position: absolute;
+    top: 52%;
+    left: -11%;
+    transform: rotate(270deg);
+    color: orange;
+}
+
+#dood4
+{
+    position: absolute;
+    top: 25%;
+    left: 7%;
+    color: #DAAD86;
+}
+
+#dood5
+{
+    position: absolute;
+    top: 25%;
+    left: 14%;
+    font-size:400%;
+    color: #5CDB95;
+}
+
+#dood6
+{
+    position: absolute;
+    top: 43%;
+    left: 4%;
+    font-size:450%;
+    transform: rotate(270deg);
+    color: #FC4445;
+}
+
+#dood7
+{
+    position: absolute;
+    top: 25%;
+    left: 49%;
+    font-size:220%;
+    color: #501B1D;
+}
+
+#dood8
+{
+    position: absolute;
+    top: 25%;
+    left: 31%;
+    font-size:320%;
+    color: #FFA700;
+}
+
+#dood9
+{
+    position: absolute;
+    top: 46%;
+    left: 14%;
+    font-size:320%;
+}
+
+#dood10
+{
+    position: absolute;
+    top: 36%;
+    left: 14%;
+    font-size:320%;
+    color: #272727;
+}
+
+#dood11
+{
+    position: absolute;
+    top: 37%;
+    left: 25%;
+    font-size:430%;
+    color: #8265A7;
+}
+
+#dood12
+{
+    position: absolute;
+    top: 65%;
+    left: 7%;
+    font-size:750%;
+    text-decoration: line-through;
+    color: #46344E;
+}
+
+#dood13
+{
+    position: absolute;
+    top: 85%;
+    left: 2%;
+    font-size:200%;
+    color: #53900F;
+}
+
+#dood14
+{
+    position: absolute;
+    left: 15%;
+    top: 29%;
+}
+
+#dood15
+{
+    position: absolute;
+    left: 44%;
+    top: 36%;
+    font-size: 350%;
+    color: #812BB2;
+}
+
+#dood16
+{
+    position: absolute;
+    left: 38%;
+    top: 64%;
+    font-size: 700%;
+}
+
+line
+{
+    text-decoration: line-through;
+    font-size:200%;
+    font-family: 'Bangers',cursive;
+}
+
+#queuebuttonHolder
+{
+    position: absolute;
+    top: 16%;
+    left: 28%;
+    border: 1px solid #C0C0C0;
+    border-radius: 7px;
+    color: blue;
+    padding: 2%;
+    width: 20%;
+    opacity: 0.9;
+}
+
+#queuebuttonHolder:hover
+{
+    opacity: 1;
+}
+
+
+#account
+{
+    border: 1px solid #C0C0C0;
+    border-radius: 7px;
+    position: absolute;
+    top: 16%;
+    left: 4%;
+    width: 22%;
+    height: 25.5%;
+    padding: 2%;
+    opacity: 0.9;
+}
+
+#account:hover
+{
+    opacity: 1;
+    cursor: pointer;
+}
+
+
+#feed
+{
+    position: absolute;
+    top: 47%;
+    left: 4%;
+    padding: ;
+    border: 1px solid #C0C0C0;
+    width: 63.5%;
+    height: auto;
+    border-radius: 7px;
+}
+
+#holder
+{
+    position: relative;
+    top: 50px;
+    padding: 1%;
+    margin: auto;
+    border: 1px solid #000000;
+    max-height: 550px;
+    overflow-y: scroll;
+    width: 65%;
+    z-index: 400000;
+    background: #F5F5F5;
+    text-align: center;
+    border-radius: 7px;
+    display: none;
+}
+
+#slide
+{
+    position: relative;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    border-radius: 7px;
+}
+
+#slide>img
+{
+    border-radius: 7px;
+    width: 100%;
+}
+
+
+#queueFormHolder
+{
+    position: relative;
+    color: #000000;
+    top: 50px;
+    padding: 1%;
+    margin: auto;
+    border: 1px solid #000000;
+    max-height: 550px;
+    overflow-y: scroll;
+    width: 65%;
+    z-index: 400000;
+    background: #F5F5F5;
+    display: none;
+    border-radius: 7px;
+  
+}
+
+#googleMap
+{
+    position: relative;
+    width: 100%;
+    height: 400px;
+    z-index: 300;
+}
+
+#queuesstarted
+{
+    position: relative;
+    border: 1px solid #000000;
+    width: 50%;
+    padding: 1%;
+    height: 300px;
+    float: left;
+    color: #000000;
+}
+
+#queuesjoined
+{
+    position: relative;
+    border: 1px solid #000000;
+    width: 50%;
+    padding: 1%;
+    height: 300px;
+    color: #000000;
+}
+
+#searchHolder
+{
+    position: absolute;
+    top: 8%;
+    padding: 1%;
+    display: none;
+    left: 22%;
+    border: 2px solid #000000;
+    width: 50%;
+    height: 570px;
+    z-index: 300000;
+    background: #F5F5F5;
+    overflow-y: scroll;
+    color: #000000;
+}
