@@ -229,3 +229,22 @@ Take to market.
 
 ## Link To Work##
 https://github.com/SpatioRex/Saas.git
+
+
+
+### Day 18: Friday, September 2nd 2022 ###
+
+**Today's Progress**
+Started a deeper outline of the steps needed to complete the idea. Separated them into phases to be completed and began to break down what each phase entails and how to manuver through them.
+
+**Thoughts**
+"Those that will" 
+i havent done any loggable progress in almost 2 weeks and i feel like a bitch, because im not holding myself to the standard i set. As much as it's easy to distract myself from the growth, I can feel it in my veins that im supposed to be wealthy on some level. Being reminded how broke i am used to be something i avoided, however after switching some of the content i ingest and really reframing how i hold myself accountable. The beast inside is slowly beginging to see through the fog and to see a direction that is within reach opposed to a dream that flees when i wake.
+
+## Next Steps##
+finish the breakdown of each phase
+reachout to developers for pricing
+talk to potential clients about the probleem i have found and if the solution i have found adds value.
+
+## Link To Work##
+https://github.com/SpatioRex/Saas/blob/master/Saas%20Questions.docx
