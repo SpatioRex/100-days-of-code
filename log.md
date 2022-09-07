@@ -248,3 +248,22 @@ talk to potential clients about the probleem i have found and if the solution i 
 
 ## Link To Work##
 https://github.com/SpatioRex/Saas/blob/master/Saas%20Questions.docx
+
+
+
+### Day 19: Wednesday, September 6th 2022 ###
+
+**Today's Progress**
+Completely skipped the defining of phase 2 and 3. Went on to breaking down questions for validation.
+
+
+**Thoughts**
+As i get more comfrtable forcing myself into things that i know will be good for me, i have begain to regain some sort of momentum. I did not really 'want' to work on this project. [i wanted to, im just running in place because i know i need to meet with people in order to really get to the next level. and knowing that im so close to that step, i often neglect the work i need to do because of my "fear of failure" but lately i have been wadding in the idea that if i treated this like able bodied homeless people depended on it, it becomes a little easier knowing its not really for me or my bugatti, but moreso society.] But knowing i have no better idea, the show must go on.
+
+## Next Steps##
+Finsh phase 2 and 3 breakdown
+Find out who im supposed to talk to about validating this idea at father joes.
+Reach out to developers about pricing
+
+## Link To Work##
+https://github.com/SpatioRex/Saas/blob/master/Saas%20Questions.docx
