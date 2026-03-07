@@ -85,7 +85,7 @@ export function OnboardingCard({ bankConnected, gmailConnected, hasTransactions 
           <div
             key={step.id}
             className={cn(
-              'flex items-center gap-3 rounded-lg border bg-background p-3 transition-opacity',
+              'flex items-center gap-2 sm:gap-3 rounded-lg border bg-background p-2 sm:p-3 transition-opacity overflow-hidden',
               step.done && 'opacity-50'
             )}
           >
@@ -105,7 +105,7 @@ export function OnboardingCard({ bankConnected, gmailConnected, hasTransactions 
             <div className="flex items-center gap-2 min-w-0 flex-1">
               <span className="text-muted-foreground shrink-0">{step.icon}</span>
               <div className="min-w-0">
-                <p className={cn('text-sm font-medium leading-none', step.done && 'line-through text-muted-foreground')}>
+                <p className={cn('text-sm font-medium leading-none truncate', step.done && 'line-through text-muted-foreground')}>
                   {step.title}
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5 truncate">{step.description}</p>

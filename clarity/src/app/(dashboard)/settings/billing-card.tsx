@@ -14,6 +14,7 @@ import { format } from 'date-fns'
 
 interface BillingCardProps {
   plan: Plan
+  rawPlan: string | null
   trialStartedAt: string | null
   currentPeriodEnd: string | null
   hasStripeSubscription: boolean
@@ -21,6 +22,7 @@ interface BillingCardProps {
 
 export function BillingCard({
   plan,
+  rawPlan,
   trialStartedAt,
   currentPeriodEnd,
   hasStripeSubscription,
@@ -29,7 +31,12 @@ export function BillingCard({
   const [loadingPortal, setLoadingPortal] = useState(false)
   const [loadingCheckout, setLoadingCheckout] = useState(false)
 
+  const isTrial = rawPlan === 'trial'
+  const isLocked = rawPlan === 'locked'
   const trialDaysLeft = trialStartedAt ? getTrialDaysRemaining(trialStartedAt) : 0
+
+  // Badge plan: show 'trial' badge for active trial users, 'locked' for expired
+  const badgePlan: Plan = isTrial ? 'trial' : isLocked ? 'locked' : plan
 
   async function handleManageBilling() {
     setLoadingPortal(true)
@@ -65,23 +72,23 @@ export function BillingCard({
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium">Current plan</p>
-            {plan === 'trial' && trialDaysLeft > 0 && (
+            {isTrial && trialDaysLeft > 0 && (
               <p className="text-xs text-muted-foreground mt-0.5">
                 Trial ends in {trialDaysLeft} day{trialDaysLeft !== 1 ? 's' : ''}
               </p>
             )}
-            {plan === 'locked' && (
+            {isLocked && (
               <p className="text-xs text-destructive mt-0.5">
                 Trial expired — upgrade to continue syncing
               </p>
             )}
-            {(plan === 'plus' || plan === 'pro' || plan === 'pass') && currentPeriodEnd && (
+            {!isTrial && !isLocked && (plan === 'plus' || plan === 'pro' || plan === 'pass') && currentPeriodEnd && (
               <p className="text-xs text-muted-foreground mt-0.5">
                 Renews {format(new Date(currentPeriodEnd), 'MMM d, yyyy')}
               </p>
             )}
           </div>
-          <PlanBadge plan={plan} />
+          <PlanBadge plan={badgePlan} />
         </div>
 
         {/* Actions */}
@@ -91,10 +98,10 @@ export function BillingCard({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium">
-                  {plan === 'plus' ? 'Upgrade to Pro' : 'Upgrade your plan'}
+                  {plan === 'plus' && !isTrial ? 'Upgrade to Pro' : 'Upgrade your plan'}
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  {plan === 'plus'
+                  {plan === 'plus' && !isTrial
                     ? 'Unlimited banks, AI reports, and data export'
                     : 'Get bank sync, budgets, goals, and more'}
                 </p>
@@ -102,10 +109,10 @@ export function BillingCard({
               <Button
                 size="sm"
                 disabled={loadingCheckout}
-                onClick={() => handleUpgrade(plan === 'plus' ? 'pro' : 'plus')}
+                onClick={() => handleUpgrade(plan === 'plus' && !isTrial ? 'pro' : 'plus')}
               >
                 {loadingCheckout && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
-                {plan === 'plus' ? 'Upgrade to Pro' : 'See plans'}
+                {plan === 'plus' && !isTrial ? 'Upgrade to Pro' : 'See plans'}
               </Button>
             </div>
           </>

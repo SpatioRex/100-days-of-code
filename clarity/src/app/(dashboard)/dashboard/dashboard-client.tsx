@@ -414,7 +414,6 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         )
 
       case 'overhead': {
-        if (monthlyOverhead <= 0 && !incomeAmt) return null
         const surplus = (incomeAmt ?? 0) - monthlyOverhead
 
         return (

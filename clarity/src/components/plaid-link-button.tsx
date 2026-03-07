@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { usePlaidLink } from 'react-plaid-link'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
@@ -11,6 +11,26 @@ interface PlaidLinkButtonProps {
   variant?: 'default' | 'outline'
   className?: string
   label?: string
+}
+
+// Inner component — only mounted when we have a token, so usePlaidLink is
+// only called once per click (not on every PlaidLinkButton on the page).
+function PlaidLinkOpener({
+  token,
+  onSuccess,
+  onExit,
+}: {
+  token: string
+  onSuccess: (public_token: string, metadata: any) => void
+  onExit: () => void
+}) {
+  const { open, ready } = usePlaidLink({ token, onSuccess, onExit })
+
+  useEffect(() => {
+    if (ready) open()
+  }, [ready, open])
+
+  return null
 }
 
 export function PlaidLinkButton({
@@ -24,6 +44,7 @@ export function PlaidLinkButton({
 
   const onSuccess = useCallback(
     async (public_token: string, metadata: any) => {
+      setLinkToken(null)
       try {
         const res = await fetch('/api/plaid/exchange-token', {
           method: 'POST',
@@ -46,16 +67,17 @@ export function PlaidLinkButton({
         router.refresh()
       } catch (err: any) {
         toast.error(err.message ?? 'Failed to connect bank')
+      } finally {
+        setLoading(false)
       }
     },
     [router]
   )
 
-  const { open, ready } = usePlaidLink({
-    token: linkToken,
-    onSuccess,
-    onExit: () => setLoading(false),
-  })
+  const onExit = useCallback(() => {
+    setLinkToken(null)
+    setLoading(false)
+  }, [])
 
   async function handleClick() {
     setLoading(true)
@@ -70,22 +92,24 @@ export function PlaidLinkButton({
     }
   }
 
-  // Once we have a token and Plaid Link is ready, open it
-  if (linkToken && ready) {
-    open()
-  }
-
   return (
-    <Button
-      variant={variant}
-      className={className}
-      onClick={handleClick}
-      disabled={loading}
-    >
-      {loading
-        ? <Loader2 className="h-4 w-4 animate-spin mr-2" />
-        : <Building2 className="h-4 w-4 mr-2" />}
-      {label}
-    </Button>
+    <>
+      {/* Only mount PlaidLinkOpener (and thus call usePlaidLink) when we have
+          a token — prevents Plaid script from loading N times per page */}
+      {linkToken && (
+        <PlaidLinkOpener token={linkToken} onSuccess={onSuccess} onExit={onExit} />
+      )}
+      <Button
+        variant={variant}
+        className={className}
+        onClick={handleClick}
+        disabled={loading}
+      >
+        {loading
+          ? <Loader2 className="h-4 w-4 animate-spin mr-2" />
+          : <Building2 className="h-4 w-4 mr-2" />}
+        {label}
+      </Button>
+    </>
   )
 }

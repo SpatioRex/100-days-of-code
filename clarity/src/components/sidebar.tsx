@@ -56,7 +56,7 @@ function NavContent({ userEmail, plan, onNavigate }: SidebarProps & { onNavigate
     ? userEmail.slice(0, 2).toUpperCase()
     : 'CL'
 
-  const showPricing = plan === 'trial' || plan === 'locked'
+  const showPricing = plan !== 'pro' && plan !== 'pass'
 
   return (
     <div className="flex h-full flex-col">

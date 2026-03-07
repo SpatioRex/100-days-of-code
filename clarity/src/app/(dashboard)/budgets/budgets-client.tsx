@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { format, getDaysInMonth, getDate } from 'date-fns'
+import { format, getDaysInMonth, getDate, differenceInDays, differenceInCalendarMonths } from 'date-fns'
 import {
-  Plus, Trash2, Wallet, TrendingUp, TrendingDown,
+  Plus, Trash2, Pencil, Wallet, TrendingUp, TrendingDown,
   Sparkles, Loader2, ChevronRight, AlertTriangle,
   CheckCircle2, MinusCircle, Target, PiggyBank,
   Trophy, Clock, ArrowUpCircle, History, X,
@@ -21,7 +21,7 @@ import { Label } from '@/components/ui/label'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
-import type { BudgetWithSpend, GoalWithProgress, GoalContribution, TransactionCategory } from '@/types/database'
+import type { BudgetWithSpend, GoalWithProgress, GoalContribution, GoalPace, TransactionCategory } from '@/types/database'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -77,8 +77,24 @@ function ProgressBar({ pct, colorClass }: { pct: number; colorClass: string }) {
 
 // ─── Budget Card ──────────────────────────────────────────────────────────────
 
-function BudgetCard({ budget, onDelete }: { budget: BudgetWithSpend; onDelete: (id: string) => void }) {
+function BudgetCard({
+  budget,
+  onDelete,
+  onEdit,
+}: {
+  budget: BudgetWithSpend
+  onDelete: (id: string) => void
+  onEdit: (id: string, updates: { name: string; amount: number; period: string; category: TransactionCategory | null; merchant: string | null }) => void
+}) {
   const [deleting, setDeleting] = useState(false)
+  const [showEdit, setShowEdit] = useState(false)
+  const [editName, setEditName] = useState(budget.name)
+  const [editAmount, setEditAmount] = useState(String(budget.amount))
+  const [editPeriod, setEditPeriod] = useState<string>(budget.period)
+  const [editCategory, setEditCategory] = useState(budget.category ?? 'all')
+  const [editMerchant, setEditMerchant] = useState(budget.merchant ?? '')
+  const [editLoading, setEditLoading] = useState(false)
+
   const cfg = BUDGET_STATUS_CONFIG[budget.status]
   const StatusIcon = cfg.icon
 
@@ -106,49 +122,151 @@ function BudgetCard({ budget, onDelete }: { budget: BudgetWithSpend; onDelete: (
     }
   }
 
+  function openEdit() {
+    setEditName(budget.name)
+    setEditAmount(String(budget.amount))
+    setEditPeriod(budget.period)
+    setEditCategory(budget.category ?? 'all')
+    setEditMerchant(budget.merchant ?? '')
+    setShowEdit(true)
+  }
+
+  async function handleEditSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!editName.trim() || !editAmount) return
+    setEditLoading(true)
+    try {
+      const res = await fetch(`/api/budgets/${budget.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: editName.trim(),
+          amount: parseFloat(editAmount),
+          period: editPeriod,
+          category: (editCategory === 'all' ? null : editCategory || null) as TransactionCategory | null,
+          merchant: editMerchant.trim() || null,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Failed')
+      onEdit(budget.id, {
+        name: editName.trim(),
+        amount: parseFloat(editAmount),
+        period: editPeriod,
+        category: (editCategory === 'all' ? null : editCategory || null) as TransactionCategory | null,
+        merchant: editMerchant.trim() || null,
+      })
+      toast.success(`"${editName.trim()}" updated`)
+      setShowEdit(false)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to update budget')
+    } finally {
+      setEditLoading(false)
+    }
+  }
+
   return (
-    <Card className="relative group">
-      <CardContent className="pt-5 pb-4">
-        <div className="flex items-start justify-between mb-4">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <span className="text-base">{budget.category ? CATEGORY_EMOJI[budget.category] ?? '📦' : '💰'}</span>
-              <p className="font-semibold text-sm truncate">{budget.name}</p>
+    <>
+      <Card className="relative group">
+        <CardContent className="pt-5 pb-4">
+          <div className="flex items-start justify-between mb-4">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <span className="text-base">{budget.category ? CATEGORY_EMOJI[budget.category] ?? '📦' : '💰'}</span>
+                <p className="font-semibold text-sm truncate">{budget.name}</p>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {PERIOD_LABELS[budget.period]}
+                {budget.category && ` · ${budget.category}`}
+                {budget.merchant && ` · ${budget.merchant}`}
+              </p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {PERIOD_LABELS[budget.period]}
-              {budget.category && ` · ${budget.category}`}
-              {budget.merchant && ` · ${budget.merchant}`}
-            </p>
+            <div className="flex items-center gap-1 ml-2 shrink-0">
+              <Badge variant="outline" className="text-xs h-5 px-1.5">${budget.amount.toFixed(0)}</Badge>
+              <Button
+                variant="ghost" size="icon"
+                className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+                onClick={openEdit}
+              >
+                <Pencil className="h-3 w-3" />
+              </Button>
+              <Button
+                variant="ghost" size="icon"
+                className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                onClick={handleDelete} disabled={deleting}
+              >
+                {deleting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-1 ml-2 shrink-0">
-            <Badge variant="outline" className="text-xs h-5 px-1.5">${budget.amount.toFixed(0)}</Badge>
-            <Button
-              variant="ghost" size="icon"
-              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-              onClick={handleDelete} disabled={deleting}
-            >
-              {deleting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
-            </Button>
+          <div className="flex items-baseline justify-between mb-2">
+            <span className="text-xl font-bold">${budget.spent.toFixed(2)}</span>
+            <span className="text-xs text-muted-foreground">of ${budget.amount.toFixed(2)}</span>
           </div>
-        </div>
-        <div className="flex items-baseline justify-between mb-2">
-          <span className="text-xl font-bold">${budget.spent.toFixed(2)}</span>
-          <span className="text-xs text-muted-foreground">of ${budget.amount.toFixed(2)}</span>
-        </div>
-        <ProgressBar pct={budget.percentUsed} colorClass={BUDGET_STATUS_CONFIG[budget.status].bar} />
-        <div className="flex items-center justify-between mt-2">
-          <div className={`flex items-center gap-1 text-xs font-medium ${cfg.color}`}>
-            <StatusIcon className="h-3 w-3" />{cfg.label}
+          <ProgressBar pct={budget.percentUsed} colorClass={BUDGET_STATUS_CONFIG[budget.status].bar} />
+          <div className="flex items-center justify-between mt-2">
+            <div className={`flex items-center gap-1 text-xs font-medium ${cfg.color}`}>
+              <StatusIcon className="h-3 w-3" />{cfg.label}
+            </div>
+            <span className="text-xs text-muted-foreground">
+              {budget.remaining >= 0
+                ? `$${budget.remaining.toFixed(2)} left · ${daysLabel}`
+                : `$${Math.abs(budget.remaining).toFixed(2)} over`}
+            </span>
           </div>
-          <span className="text-xs text-muted-foreground">
-            {budget.remaining >= 0
-              ? `$${budget.remaining.toFixed(2)} left · ${daysLabel}`
-              : `$${Math.abs(budget.remaining).toFixed(2)} over`}
-          </span>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      {/* Edit dialog */}
+      <Dialog open={showEdit} onOpenChange={setShowEdit}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader><DialogTitle>Edit budget</DialogTitle></DialogHeader>
+          <form onSubmit={handleEditSubmit} className="space-y-4 pt-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-bname">Name</Label>
+              <Input id="edit-bname" placeholder="e.g. Monthly Groceries" value={editName} onChange={(e) => setEditName(e.target.value)} required />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>Period</Label>
+                <Select value={editPeriod} onValueChange={setEditPeriod}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="daily">Daily</SelectItem>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="edit-bamount">Limit ($)</Label>
+                <Input id="edit-bamount" type="number" min="0.01" step="0.01" placeholder="0.00" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} required />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Category <span className="text-muted-foreground">(optional)</span></Label>
+              <Select value={editCategory} onValueChange={setEditCategory}>
+                <SelectTrigger><SelectValue placeholder="All categories" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All categories</SelectItem>
+                  {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{CATEGORY_EMOJI[c]} {c}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-bmerchant">Merchant filter <span className="text-muted-foreground">(optional)</span></Label>
+              <Input id="edit-bmerchant" placeholder="e.g. Starbucks" value={editMerchant} onChange={(e) => setEditMerchant(e.target.value)} />
+            </div>
+            <DialogFooter className="pt-2">
+              <Button type="button" variant="outline" onClick={() => setShowEdit(false)}>Cancel</Button>
+              <Button type="submit" disabled={editLoading}>
+                {editLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}Save changes
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 
@@ -159,19 +277,27 @@ function GoalCard({
   onDelete,
   onContribute,
   onDeleteContribution,
+  onEdit,
 }: {
   goal: GoalWithProgress
   onDelete: (id: string) => void
   onContribute: (goalId: string, amount: number, note: string, date: string) => Promise<void>
   onDeleteContribution: (goalId: string, contributionId: string) => Promise<void>
+  onEdit: (id: string, updates: { name: string; target_amount: number; target_date: string; emoji: string }) => void
 }) {
   const [deleting, setDeleting]         = useState(false)
   const [showContrib, setShowContrib]   = useState(false)
   const [showHistory, setShowHistory]   = useState(false)
+  const [showEdit, setShowEdit]         = useState(false)
   const [amount, setAmount]             = useState('')
   const [note, setNote]                 = useState('')
   const [date, setDate]                 = useState(new Date().toISOString().split('T')[0])
   const [saving, setSaving]             = useState(false)
+  const [editName, setEditName]         = useState(goal.name)
+  const [editTargetAmount, setEditTargetAmount] = useState(String(goal.target_amount))
+  const [editTargetDate, setEditTargetDate]     = useState(goal.target_date)
+  const [editEmoji, setEditEmoji]       = useState(goal.emoji)
+  const [editLoading, setEditLoading]   = useState(false)
 
   const pace = PACE_CONFIG[goal.pace]
   const PaceIcon = pace.icon
@@ -191,6 +317,46 @@ function GoalCard({
     } catch {
       toast.error('Failed to delete goal')
       setDeleting(false)
+    }
+  }
+
+  function openEdit() {
+    setEditName(goal.name)
+    setEditTargetAmount(String(goal.target_amount))
+    setEditTargetDate(goal.target_date)
+    setEditEmoji(goal.emoji)
+    setShowEdit(true)
+  }
+
+  async function handleEditSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!editName.trim() || !editTargetAmount || !editTargetDate) return
+    setEditLoading(true)
+    try {
+      const res = await fetch(`/api/goals/${goal.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: editName.trim(),
+          target_amount: parseFloat(editTargetAmount),
+          target_date: editTargetDate,
+          emoji: editEmoji,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Failed')
+      onEdit(goal.id, {
+        name: editName.trim(),
+        target_amount: parseFloat(editTargetAmount),
+        target_date: editTargetDate,
+        emoji: editEmoji,
+      })
+      toast.success(`"${editName.trim()}" updated`)
+      setShowEdit(false)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to update goal')
+    } finally {
+      setEditLoading(false)
     }
   }
 
@@ -226,13 +392,22 @@ function GoalCard({
                 {goal.daysLeft > 0 ? ` · ${goal.daysLeft}d left` : ' · Deadline passed'}
               </p>
             </div>
-            <Button
-              variant="ghost" size="icon"
-              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0 ml-2"
-              onClick={handleDelete} disabled={deleting}
-            >
-              {deleting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
-            </Button>
+            <div className="flex items-center gap-1 ml-2 shrink-0">
+              <Button
+                variant="ghost" size="icon"
+                className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+                onClick={openEdit}
+              >
+                <Pencil className="h-3 w-3" />
+              </Button>
+              <Button
+                variant="ghost" size="icon"
+                className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                onClick={handleDelete} disabled={deleting}
+              >
+                {deleting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+              </Button>
+            </div>
           </div>
 
           {/* Amount */}
@@ -369,6 +544,47 @@ function GoalCard({
             <span className="text-muted-foreground">Total saved</span>
             <span className="font-semibold">${goal.totalSaved.toFixed(2)}</span>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit goal dialog */}
+      <Dialog open={showEdit} onOpenChange={setShowEdit}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader><DialogTitle>Edit goal</DialogTitle></DialogHeader>
+          <form onSubmit={handleEditSubmit} className="space-y-4 pt-2">
+            <div className="space-y-1.5">
+              <Label>Icon</Label>
+              <div className="flex flex-wrap gap-2">
+                {GOAL_EMOJIS.map((e) => (
+                  <button
+                    key={e} type="button"
+                    onClick={() => setEditEmoji(e)}
+                    className={`text-xl p-1.5 rounded-lg transition-colors ${editEmoji === e ? 'bg-primary/20 ring-2 ring-primary' : 'hover:bg-muted'}`}
+                  >{e}</button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-gname">Goal name</Label>
+              <Input id="edit-gname" placeholder="e.g. Vacation Fund" value={editName} onChange={(e) => setEditName(e.target.value)} required />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="edit-gtarget">Target amount ($)</Label>
+                <Input id="edit-gtarget" type="number" min="1" step="0.01" placeholder="0.00" value={editTargetAmount} onChange={(e) => setEditTargetAmount(e.target.value)} required />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="edit-gdate">Target date</Label>
+                <Input id="edit-gdate" type="date" value={editTargetDate} onChange={(e) => setEditTargetDate(e.target.value)} required />
+              </div>
+            </div>
+            <DialogFooter className="pt-2">
+              <Button type="button" variant="outline" onClick={() => setShowEdit(false)}>Cancel</Button>
+              <Button type="submit" disabled={editLoading}>
+                {editLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}Save changes
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </>
@@ -671,10 +887,16 @@ function SmartScanCard() {
 
 // ─── Budgets Tab ──────────────────────────────────────────────────────────────
 
-function BudgetsTab({ budgets, onBudgetCreated, onBudgetDeleted }: {
+function BudgetsTab({
+  budgets,
+  onBudgetCreated,
+  onBudgetDeleted,
+  onBudgetEdited,
+}: {
   budgets: BudgetWithSpend[]
   onBudgetCreated: (b: BudgetWithSpend) => void
   onBudgetDeleted: (id: string) => void
+  onBudgetEdited: (id: string, updates: { name: string; amount: number; period: string; category: TransactionCategory | null; merchant: string | null }) => void
 }) {
   const [showCreate, setShowCreate] = useState(false)
   const totalBudgeted = budgets.reduce((s, b) => s + b.amount, 0)
@@ -722,7 +944,7 @@ function BudgetsTab({ budgets, onBudgetCreated, onBudgetDeleted }: {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {budgets.map((b) => <BudgetCard key={b.id} budget={b} onDelete={onBudgetDeleted} />)}
+          {budgets.map((b) => <BudgetCard key={b.id} budget={b} onDelete={onBudgetDeleted} onEdit={onBudgetEdited} />)}
         </div>
       )}
 
@@ -734,12 +956,20 @@ function BudgetsTab({ budgets, onBudgetCreated, onBudgetDeleted }: {
 
 // ─── Goals Tab ────────────────────────────────────────────────────────────────
 
-function GoalsTab({ goals, onGoalCreated, onGoalDeleted, onContributionAdded, onContributionDeleted }: {
+function GoalsTab({
+  goals,
+  onGoalCreated,
+  onGoalDeleted,
+  onContributionAdded,
+  onContributionDeleted,
+  onGoalEdited,
+}: {
   goals: GoalWithProgress[]
   onGoalCreated: (g: GoalWithProgress) => void
   onGoalDeleted: (id: string) => void
   onContributionAdded: (goalId: string, contribution: GoalContribution) => void
   onContributionDeleted: (goalId: string, contributionId: string) => void
+  onGoalEdited: (id: string, updates: { name: string; target_amount: number; target_date: string; emoji: string }) => void
 }) {
   const [showCreate, setShowCreate] = useState(false)
 
@@ -813,6 +1043,7 @@ function GoalsTab({ goals, onGoalCreated, onGoalDeleted, onContributionAdded, on
               onDelete={onGoalDeleted}
               onContribute={handleContribute}
               onDeleteContribution={handleDeleteContribution}
+              onEdit={onGoalEdited}
             />
           ))}
         </div>
@@ -840,19 +1071,50 @@ export function BudgetsClient({
   // Budget handlers
   function handleBudgetCreated(b: BudgetWithSpend) { setBudgets((p) => [...p, b]); router.refresh() }
   function handleBudgetDeleted(id: string)          { setBudgets((p) => p.filter((b) => b.id !== id)) }
+  function handleBudgetEdited(id: string, updates: { name: string; amount: number; period: string; category: TransactionCategory | null; merchant: string | null }) {
+    setBudgets((p) => p.map((b) => b.id === id ? ({ ...b, ...updates }) as BudgetWithSpend : b))
+  }
 
   // Goal handlers
   function handleGoalCreated(g: GoalWithProgress)   { setGoals((p) => [...p, g]) }
   function handleGoalDeleted(id: string)             { setGoals((p) => p.filter((g) => g.id !== id)) }
+  function handleGoalEdited(id: string, updates: { name: string; target_amount: number; target_date: string; emoji: string }) {
+    setGoals((p) => p.map((g) => g.id === id ? { ...g, ...updates } : g))
+  }
+
+  function recomputePace(g: GoalWithProgress, contributions: GoalContribution[]): Partial<GoalWithProgress> {
+    const totalSaved = contributions.reduce((s, c) => s + Number(c.amount), 0)
+    const remaining = Math.max(0, g.target_amount - totalSaved)
+    const percentSaved = g.target_amount > 0 ? Math.min(100, (totalSaved / g.target_amount) * 100) : 0
+
+    const now = new Date()
+    const targetDate = new Date(g.target_date)
+    const createdAt = new Date(g.created_at)
+    const daysLeft = Math.max(0, differenceInDays(targetDate, now))
+    const monthsActive = Math.max(1, differenceInCalendarMonths(now, createdAt) + 1)
+    const avgPerMonth = totalSaved / monthsActive
+    const monthsLeft = Math.max(1, differenceInCalendarMonths(targetDate, now) + 1)
+    const neededPerMonth = remaining / monthsLeft
+
+    let pace: GoalPace = 'no-data'
+    if (totalSaved >= g.target_amount) {
+      pace = 'complete'
+    } else if (contributions.length > 0) {
+      const totalDays = Math.max(1, differenceInDays(targetDate, createdAt))
+      const daysPassed = Math.max(1, differenceInDays(now, createdAt))
+      const expected = (g.target_amount / totalDays) * daysPassed
+      const ratio = totalSaved / expected
+      pace = ratio >= 1.1 ? 'ahead' : ratio >= 0.85 ? 'on-track' : 'behind'
+    }
+
+    return { totalSaved, remaining, percentSaved, daysLeft, pace, avgPerMonth, neededPerMonth }
+  }
 
   function handleContributionAdded(goalId: string, contribution: GoalContribution) {
     setGoals((prev) => prev.map((g) => {
       if (g.id !== goalId) return g
       const contributions = [contribution, ...g.contributions]
-      const totalSaved    = contributions.reduce((s, c) => s + Number(c.amount), 0)
-      const remaining     = Math.max(0, g.target_amount - totalSaved)
-      const percentSaved  = g.target_amount > 0 ? Math.min(100, (totalSaved / g.target_amount) * 100) : 0
-      return { ...g, contributions, totalSaved, remaining, percentSaved }
+      return { ...g, ...recomputePace(g, contributions), contributions }
     }))
   }
 
@@ -860,10 +1122,7 @@ export function BudgetsClient({
     setGoals((prev) => prev.map((g) => {
       if (g.id !== goalId) return g
       const contributions = g.contributions.filter((c) => c.id !== contributionId)
-      const totalSaved    = contributions.reduce((s, c) => s + Number(c.amount), 0)
-      const remaining     = Math.max(0, g.target_amount - totalSaved)
-      const percentSaved  = g.target_amount > 0 ? Math.min(100, (totalSaved / g.target_amount) * 100) : 0
-      return { ...g, contributions, totalSaved, remaining, percentSaved }
+      return { ...g, ...recomputePace(g, contributions), contributions }
     }))
   }
 
@@ -903,6 +1162,7 @@ export function BudgetsClient({
           budgets={budgets}
           onBudgetCreated={handleBudgetCreated}
           onBudgetDeleted={handleBudgetDeleted}
+          onBudgetEdited={handleBudgetEdited}
         />
       ) : (
         <GoalsTab
@@ -911,6 +1171,7 @@ export function BudgetsClient({
           onGoalDeleted={handleGoalDeleted}
           onContributionAdded={handleContributionAdded}
           onContributionDeleted={handleContributionDeleted}
+          onGoalEdited={handleGoalEdited}
         />
       )}
     </div>

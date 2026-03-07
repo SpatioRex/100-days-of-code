@@ -46,6 +46,7 @@ export default async function SettingsPage({
       {/* Billing */}
       <BillingCard
         plan={plan}
+        rawPlan={subRow?.plan ?? null}
         trialStartedAt={subRow?.trial_started_at ?? null}
         currentPeriodEnd={subRow?.current_period_end ?? null}
         hasStripeSubscription={!!subRow?.stripe_subscription_id}
