@@ -10,6 +10,9 @@ import {
   LogOut,
   Sparkles,
   Menu,
+  CreditCard,
+  PiggyBank,
+  Tag,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -19,19 +22,25 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Separator } from '@/components/ui/separator'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
+import { NotificationBell } from '@/components/notification-bell'
+import { PlanBadge } from '@/components/plan-badge'
+import type { Plan } from '@/lib/subscription'
 
-const navItems = [
+const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
   { href: '/subscriptions', label: 'Subscriptions', icon: RefreshCw },
+  { href: '/payments', label: 'Payments', icon: CreditCard },
+  { href: '/budgets', label: 'Budgets', icon: PiggyBank },
   { href: '/settings', label: 'Settings', icon: Settings },
 ]
 
 interface SidebarProps {
   userEmail?: string | null
+  plan?: Plan
 }
 
-function NavContent({ userEmail, onNavigate }: SidebarProps & { onNavigate?: () => void }) {
+function NavContent({ userEmail, plan, onNavigate }: SidebarProps & { onNavigate?: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
@@ -47,6 +56,8 @@ function NavContent({ userEmail, onNavigate }: SidebarProps & { onNavigate?: () 
     ? userEmail.slice(0, 2).toUpperCase()
     : 'CL'
 
+  const showPricing = plan === 'trial' || plan === 'locked'
+
   return (
     <div className="flex h-full flex-col">
       {/* Logo */}
@@ -61,7 +72,7 @@ function NavContent({ userEmail, onNavigate }: SidebarProps & { onNavigate?: () 
 
       {/* Nav items */}
       <nav className="flex-1 space-y-1 px-3 py-4">
-        {navItems.map(({ href, label, icon: Icon }) => {
+        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href || pathname.startsWith(href + '/')
           return (
             <Link
@@ -80,42 +91,71 @@ function NavContent({ userEmail, onNavigate }: SidebarProps & { onNavigate?: () 
             </Link>
           )
         })}
+
+        {showPricing && (
+          <Link
+            href="/pricing"
+            onClick={onNavigate}
+            className={cn(
+              'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+              pathname === '/pricing'
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+            )}
+          >
+            <Tag className="h-4 w-4 shrink-0" />
+            Pricing
+          </Link>
+        )}
       </nav>
 
       <Separator />
 
       {/* Footer */}
-      <div className="flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-2 min-w-0">
-          <Avatar className="h-7 w-7 shrink-0">
-            <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-          </Avatar>
-          <span className="truncate text-xs text-muted-foreground">
-            {userEmail ?? 'Account'}
-          </span>
-        </div>
-        <div className="flex items-center gap-1">
-          <ThemeToggle />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSignOut}
-            aria-label="Sign out"
-          >
-            <LogOut className="h-4 w-4" />
-          </Button>
+      <div className="px-4 py-3 space-y-2">
+        {plan && (
+          <div className="flex items-center justify-between">
+            <PlanBadge plan={plan} />
+            {showPricing && (
+              <Link href="/pricing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                Upgrade →
+              </Link>
+            )}
+          </div>
+        )}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 min-w-0">
+            <Avatar className="h-7 w-7 shrink-0">
+              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+            </Avatar>
+            <span className="truncate text-xs text-muted-foreground">
+              {userEmail ?? 'Account'}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <NotificationBell />
+            <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleSignOut}
+              aria-label="Sign out"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
   )
 }
 
-export function Sidebar({ userEmail }: SidebarProps) {
+export function Sidebar({ userEmail, plan }: SidebarProps) {
   return (
     <>
       {/* Desktop sidebar */}
       <aside className="hidden w-60 shrink-0 border-r bg-card lg:flex lg:flex-col">
-        <NavContent userEmail={userEmail} />
+        <NavContent userEmail={userEmail} plan={plan} />
       </aside>
 
       {/* Mobile sidebar (Sheet) */}
@@ -130,7 +170,7 @@ export function Sidebar({ userEmail }: SidebarProps) {
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-60 p-0">
-          <NavContent userEmail={userEmail} />
+          <NavContent userEmail={userEmail} plan={plan} />
         </SheetContent>
       </Sheet>
     </>

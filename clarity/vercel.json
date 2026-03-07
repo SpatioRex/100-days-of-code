@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "src/app/api/gmail/sync/route.ts": { "maxDuration": 60 },
+    "src/app/api/plaid/sync/route.ts": { "maxDuration": 60 },
+    "src/app/api/cron/weekly-digest/route.ts": { "maxDuration": 60 }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/weekly-digest",
+      "schedule": "0 9 * * 1"
+    }
+  ]
+}
