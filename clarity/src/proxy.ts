@@ -37,8 +37,17 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith('/signup') ||
     pathname.startsWith('/auth')
 
-  // Redirect unauthenticated users to login
-  if (!user && !isAuthRoute) {
+  // API routes, PWA assets, and public pages: never redirect to HTML login page
+  const isPublicRoute =
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/legal/') ||
+    pathname === '/manifest.webmanifest' ||
+    pathname === '/icon' ||
+    pathname === '/apple-icon' ||
+    pathname.startsWith('/icon-')
+
+  // Redirect unauthenticated users to login (skip API + public routes)
+  if (!user && !isAuthRoute && !isPublicRoute) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
@@ -56,6 +65,7 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // Exclude Next.js internals, static files, and the PWA service worker
+    '/((?!_next/static|_next/image|favicon.ico|sw\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|js\\.map)$).*)',
   ],
 }
