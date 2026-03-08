@@ -33,6 +33,8 @@ function extractEmailText(payload: any): string {
 
 // --- Gmail API sync ---
 async function syncGmailConnection(connection: any, supabase: any, userId: string) {
+  const label = connection.email ?? 'Gmail account'
+  try {
   const oauth2Client = getOAuthClient()
   oauth2Client.setCredentials({
     access_token: connection.access_token,
@@ -108,75 +110,164 @@ async function syncGmailConnection(connection: any, supabase: any, userId: strin
 
   await supabase.from('gmail_connections').update({ last_synced_at: new Date().toISOString() }).eq('id', connection.id)
   return { synced, skipped }
+  } catch (err: any) {
+    // OAuth token revoked / expired / network error — don't propagate; log and return 0
+    const isAuth = err?.message?.includes('invalid_grant') || err?.code === 401 || err?.status === 401
+    console.error(`[Gmail sync ${label}] ${isAuth ? 'Auth error (needs reconnect)' : 'Error'}: ${err?.message ?? err}`)
+    return { synced: 0, skipped: 0, needsReauth: isAuth }
+  }
+}
+
+/** Races a promise against a hard ms timeout so Yahoo IMAP never hangs the function. */
+function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    p,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`IMAP timeout: ${label} (${ms}ms)`)), ms)
+    ),
+  ])
 }
 
 // --- Yahoo IMAP sync ---
 async function syncYahooConnection(connection: any, supabase: any, userId: string) {
-  // Refresh token if needed
-  let accessToken = connection.access_token
+  // Auth method:
+  // refresh_token present → OAuth; try refresh first
+  // refresh_token null   → app password stored in access_token
+  let imapAuth: { user: string; pass?: string; accessToken?: string }
+
   if (connection.refresh_token) {
+    let accessToken = connection.access_token
     try {
       accessToken = await refreshYahooToken(connection.refresh_token)
       await supabase.from('gmail_connections').update({ access_token: accessToken }).eq('id', connection.id)
     } catch { /* use existing token */ }
+    imapAuth = { user: connection.email ?? '', accessToken }
+  } else {
+    // App password — access_token IS the app password
+    imapAuth = { user: connection.email ?? '', pass: connection.access_token }
   }
 
   const client = new ImapFlow({
     host: YAHOO_IMAP_HOST,
     port: YAHOO_IMAP_PORT,
     secure: true,
-    auth: {
-      user: connection.email ?? '',
-      accessToken,
-    },
+    auth: imapAuth,
     logger: false,
+    socketTimeout: 15000,
   })
 
-  await client.connect()
+  // INBOX only — "Bulk Mail" (Yahoo's spam folder) hangs indefinitely on IMAP SELECT
+  // and would eat the entire Vercel function timeout before processing any emails.
+  const YAHOO_FOLDERS = ['INBOX']
+
+  // Focused keyword list — covers receipts, invoices, orders, billing, subscriptions.
+  // "shipped" / "confirmation" / "charged" / "purchase" removed — lower signal, slower.
+  const searchKeywords = [
+    'receipt', 'invoice', 'order', 'payment',
+    'subscription', 'billing', 'renewal',
+  ]
+
+  await withTimeout(client.connect(), 10000, 'connect')
   let synced = 0
   let skipped = 0
 
   try {
-    await client.mailboxOpen('INBOX')
-
-    // Search for receipt-like emails in last 90 days
     const since = new Date()
     since.setDate(since.getDate() - 90)
-
-    const searchResults = await client.search({
-      since,
-      or: [
-        { subject: 'receipt' },
-        { subject: 'invoice' },
-        { subject: 'order confirmation' },
-        { subject: 'payment' },
-        { subject: 'subscription' },
-      ],
-    })
-
-    const uids = (searchResults || []).slice(-20) // last 20 matching
 
     const { data: existingRaw } = await supabase
       .from('transactions').select('raw_text').eq('user_id', userId).eq('source', 'email')
     const existingIds = new Set((existingRaw ?? []).map((r: any) => r.raw_text).filter(Boolean))
 
-    // Collect email bodies first
     type YahooPayload = { key: string; text: string; date: string | undefined }
     const toExtract: YahooPayload[] = []
+    const seenKeys = new Set<string>()
 
-    for (const uid of uids) {
-      const msgKey = `yahoo:${connection.id}:${uid}`
-      if (existingIds.has(msgKey)) { skipped++; continue }
+    for (const folder of YAHOO_FOLDERS) {
       try {
-        const msg = await client.fetchOne(String(uid), { bodyStructure: true, envelope: true, bodyParts: ['TEXT'] })
-        const bodyPart = (msg as any).bodyParts?.get('text') as Buffer | undefined
-        const emailText = bodyPart ? bodyPart.toString('utf-8').slice(0, 4000) : ''
-        if (!emailText.trim()) { skipped++; continue }
-        const envelopeDate = (msg as any).envelope?.date
-        const date = envelopeDate instanceof Date ? envelopeDate.toISOString().split('T')[0] : undefined
-        toExtract.push({ key: msgKey, text: emailText, date })
-      } catch { skipped++ }
+        await withTimeout(client.mailboxOpen(folder), 8000, `mailboxOpen ${folder}`)
+      } catch (e) {
+        console.log(`[Yahoo sync ${connection.email}] Skipping folder "${folder}": ${e instanceof Error ? e.message : e}`)
+        continue
+      }
+
+      // Run each keyword search with its own timeout.
+      // Collect sequence numbers and deduplicate across keywords.
+      const seqSet = new Set<number>()
+      for (const keyword of searchKeywords) {
+        try {
+          const results = await withTimeout(
+            client.search({ since, subject: keyword }),
+            8000, `search ${keyword}`
+          )
+          ;((results || []) as number[]).forEach(seq => seqSet.add(seq))
+        } catch (e) {
+          console.log(`[Yahoo sync ${connection.email}] Search "${keyword}" skipped: ${e instanceof Error ? e.message : e}`)
+        }
+      }
+
+      // Take 20 most recent (highest seq = newest)
+      const seqNums = Array.from(seqSet).sort((a, b) => a - b).slice(-20)
+      console.log(`[Yahoo sync ${connection.email}] ${seqNums.length} unique matches in ${folder}`)
+      if (seqNums.length === 0) continue
+
+      const seqRange = seqNums.join(',')
+      try {
+        // Fetch parts 1, 2, 1.1, 1.2 in one command — covers all common MIME structures:
+        //   multipart/alternative: part 1 = text/plain, part 2 = text/html
+        //   multipart/mixed:       part 1.1 = text/plain, part 1.2 = text/html
+        // source:true (full BODY[]) hangs on Yahoo — never use it.
+        const fetchLoop = async () => {
+          for await (const msg of client.fetch(seqRange, { bodyParts: ['1', '2', '1.1', '1.2'], envelope: true })) {
+            const messageId: string | undefined = (msg as any).envelope?.messageId
+            const msgKey = messageId
+              ? `yahoo:mid:${messageId}`
+              : `yahoo:${connection.id}:${folder}:${(msg as any).seq}`
+
+            if (seenKeys.has(msgKey) || existingIds.has(msgKey)) { skipped++; continue }
+            seenKeys.add(msgKey)
+
+            // Pick the largest available part — more bytes = richer content for Claude.
+            // HTML receipts (Apple, Netflix, etc.) put all details in part 2 or 1.2,
+            // leaving part 1 nearly empty ("View this email in your browser...").
+            const bp = (msg as any).bodyParts as Map<string, Buffer> | undefined
+            const bodyBuf = ['1.2', '1.1', '2', '1']
+              .map(k => bp?.get(k))
+              .filter((b): b is Buffer => Buffer.isBuffer(b) && b.byteLength > 0)
+              .reduce<Buffer | undefined>(
+                (best, buf) => !best || buf.byteLength > best.byteLength ? buf : best,
+                undefined
+              )
+            if (!bodyBuf) { skipped++; continue }
+
+            const rawBody = bodyBuf.toString('utf-8')
+
+            // Decode quoted-printable, strip style/script blocks, HTML tags, entities
+            const emailText = rawBody
+              .replace(/=\r?\n/g, '')
+              .replace(/=([0-9A-Fa-f]{2})/g, (_: string, h: string) => String.fromCharCode(parseInt(h, 16)))
+              .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ')
+              .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ')
+              .replace(/<[^>]+>/g, ' ')
+              .replace(/&[a-zA-Z0-9#]+;/g, ' ')
+              .replace(/\s+/g, ' ')
+              .trim()
+              .slice(0, 4000)
+
+            if (!emailText) { skipped++; continue }
+
+            const envelopeDate = (msg as any).envelope?.date
+            const date = envelopeDate instanceof Date ? envelopeDate.toISOString().split('T')[0] : undefined
+            toExtract.push({ key: msgKey, text: emailText, date })
+          }
+        }
+        await withTimeout(fetchLoop(), 20000, 'fetch messages')
+      } catch (e) {
+        console.error(`[Yahoo sync ${connection.email}] Fetch error (${folder}): ${e instanceof Error ? e.message : e}`)
+      }
     }
+
+    console.log(`[Yahoo sync ${connection.email}] Sending ${toExtract.length} emails to Claude`)
 
     // Batch Haiku extraction
     const BATCH_SIZE = 8
@@ -196,12 +287,18 @@ async function syncYahooConnection(connection: any, supabase: any, userId: strin
           source: 'email',
           raw_text: batch[j].key,
         })
-        if (error) { skipped++; continue }
+        if (error) {
+          console.error(`[Yahoo sync ${connection.email}] DB insert error:`, error.message)
+          skipped++
+          continue
+        }
         synced++
       }
     }
+
+    console.log(`[Yahoo sync ${connection.email}] Done — synced=${synced} skipped=${skipped}`)
   } finally {
-    await client.logout()
+    try { await client.logout() } catch { /* ignore */ }
   }
 
   await supabase.from('gmail_connections').update({ last_synced_at: new Date().toISOString() }).eq('id', connection.id)
@@ -232,22 +329,32 @@ export async function POST() {
   let totalSynced = 0
   let totalSkipped = 0
   const errors: string[] = []
+  const needsReauth: string[] = []
 
   for (const conn of connections) {
     try {
-      const { synced, skipped } = conn.provider === 'yahoo'
+      const result = conn.provider === 'yahoo'
         ? await syncYahooConnection(conn, supabase, user.id)
         : await syncGmailConnection(conn, supabase, user.id)
-      totalSynced += synced
-      totalSkipped += skipped
+      totalSynced += result.synced
+      totalSkipped += result.skipped
+      if ((result as any).needsReauth) {
+        needsReauth.push(conn.email ?? (conn.provider === 'yahoo' ? 'Yahoo Mail' : 'Gmail'))
+      }
     } catch (err: any) {
-      console.error(`Sync error for ${conn.email} (${conn.provider}):`, err)
-      errors.push(conn.email ?? conn.id)
+      const label = conn.email ?? (conn.provider === 'yahoo' ? 'Yahoo Mail' : 'Gmail')
+      console.error(`Sync error for ${label}:`, err)
+      errors.push(label)
     }
   }
 
-  if (errors.length > 0 && totalSynced === 0) {
+  if (errors.length > 0 && errors.length === connections.length) {
     return NextResponse.json({ error: `Sync failed for: ${errors.join(', ')}` }, { status: 500 })
   }
-  return NextResponse.json({ synced: totalSynced, skipped: totalSkipped })
+  return NextResponse.json({
+    synced: totalSynced,
+    skipped: totalSkipped,
+    ...(needsReauth.length > 0 ? { needsReauth } : {}),
+    ...(errors.length > 0 ? { warnings: errors } : {}),
+  })
 }
