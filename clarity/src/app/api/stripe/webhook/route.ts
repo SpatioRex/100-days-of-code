@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { stripe, planFromPriceId } from '@/lib/stripe'
+import { getStripe, planFromPriceId } from '@/lib/stripe'
 import { createClient } from '@supabase/supabase-js'
 import type Stripe from 'stripe'
 
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
 
   let event: Stripe.Event
   try {
-    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
+    event = getStripe().webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
   } catch {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
       const subscriptionId = session.subscription as string
 
       // Determine plan from the subscription's price
-      const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
+      const subscription = await getStripe().subscriptions.retrieve(subscriptionId, {
         expand: ['items.data.price'],
       })
       const priceId = subscription.items.data[0]?.price.id

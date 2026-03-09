@@ -3,6 +3,24 @@ export const YAHOO_TOKEN_URL = 'https://api.login.yahoo.com/oauth2/get_token'
 export const YAHOO_IMAP_HOST = 'imap.mail.yahoo.com'
 export const YAHOO_IMAP_PORT = 993
 
+/**
+ * Test a Yahoo Mail IMAP connection using an app password.
+ * Returns true if the connection succeeds, throws on failure.
+ */
+export async function testYahooImapConnection(email: string, appPassword: string): Promise<true> {
+  const { ImapFlow } = await import('imapflow')
+  const client = new ImapFlow({
+    host: YAHOO_IMAP_HOST,
+    port: YAHOO_IMAP_PORT,
+    secure: true,
+    auth: { user: email, pass: appPassword },
+    logger: false,
+  })
+  await client.connect()
+  await client.logout()
+  return true
+}
+
 export function getYahooAuthUrl(): string {
   const params = new URLSearchParams({
     client_id: process.env.YAHOO_CLIENT_ID!,

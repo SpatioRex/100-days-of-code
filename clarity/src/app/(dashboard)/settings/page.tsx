@@ -10,6 +10,7 @@ import { BankCard } from './bank-card'
 import { ReceiptUploadCard } from './receipt-upload-card'
 import { NotificationPreferencesCard } from './notification-preferences-card'
 import { BillingCard } from './billing-card'
+import { MFACard } from './mfa-card'
 import { resolvePlan } from '@/lib/subscription'
 import type { SubscriptionRow } from '@/lib/subscription'
 
@@ -101,6 +102,9 @@ export default async function SettingsPage({
 
       {/* Notification Preferences */}
       <NotificationPreferencesCard />
+
+      {/* Two-Factor Authentication */}
+      <MFACard />
 
       {/* Security */}
       <Card>

@@ -54,17 +54,28 @@ export function SyncAllButton({ hasGmail, hasBank }: Props) {
 
       toast.dismiss(toastId)
 
-      if (errors.length > 0 && bankSynced === 0 && gmailSynced === 0) {
+      // Check if any accounts need to be reconnected
+      const reauthNeeded: string[] = []
+      if (gmailResult.status === 'fulfilled' && gmailResult.value?.needsReauth?.length) {
+        reauthNeeded.push(...gmailResult.value.needsReauth)
+      }
+
+      if (errors.length > 0 && bankSynced === 0 && gmailSynced === 0 && reauthNeeded.length === 0) {
         toast.error(errors.join(' · '), { duration: 10000 })
       } else {
         const total = bankSynced + gmailSynced
-        toast.success(
-          total > 0
-            ? `Synced ${total} new transaction${total !== 1 ? 's' : ''}`
-            : 'Already up to date!'
-        )
-        // Refresh the page to show new transactions
-        if (total > 0) window.location.reload()
+        if (total > 0) {
+          toast.success(`Synced ${total} new transaction${total !== 1 ? 's' : ''}`)
+          window.location.reload()
+        } else {
+          toast.success('Already up to date!')
+        }
+        // Show reauth warning separately so it's not dismissed with the success toast
+        if (reauthNeeded.length > 0) {
+          setTimeout(() => {
+            toast.warning(`${reauthNeeded.join(', ')} needs to be reconnected — go to Email Accounts and disconnect/reconnect.`, { duration: 12000 })
+          }, 500)
+        }
       }
     } catch {
       toast.dismiss(toastId)

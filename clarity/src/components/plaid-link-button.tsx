@@ -24,7 +24,21 @@ function PlaidLinkOpener({
   onSuccess: (public_token: string, metadata: any) => void
   onExit: () => void
 }) {
-  const { open, ready } = usePlaidLink({ token, onSuccess, onExit })
+  // After an OAuth bank login (Chase, BoA, etc.), Plaid redirects back to our
+  // app with ?oauth_state_id=... in the URL. We must pass receivedRedirectUri
+  // so Plaid can pick up the flow where it left off.
+  const receivedRedirectUri =
+    typeof window !== 'undefined' &&
+    window.location.search.includes('oauth_state_id')
+      ? window.location.href
+      : undefined
+
+  const { open, ready } = usePlaidLink({
+    token,
+    onSuccess,
+    onExit,
+    receivedRedirectUri,
+  })
 
   useEffect(() => {
     if (ready) open()
@@ -42,9 +56,34 @@ export function PlaidLinkButton({
   const [linkToken, setLinkToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
+  // On mount: if this is a post-OAuth redirect (Plaid sends user back with
+  // ?oauth_state_id=...), restore the saved link token and re-open Plaid Link.
+  useEffect(() => {
+    if (
+      typeof window !== 'undefined' &&
+      window.location.search.includes('oauth_state_id')
+    ) {
+      const saved = sessionStorage.getItem('plaid_link_token')
+      if (saved) {
+        sessionStorage.removeItem('plaid_link_token')
+        setLinkToken(saved)
+        setLoading(true)
+      }
+    }
+  }, [])
+
   const onSuccess = useCallback(
     async (public_token: string, metadata: any) => {
       setLinkToken(null)
+
+      // Clean up OAuth query params from the URL so they don't linger
+      if (
+        typeof window !== 'undefined' &&
+        window.location.search.includes('oauth_state_id')
+      ) {
+        window.history.replaceState({}, '', window.location.pathname)
+      }
+
       try {
         const res = await fetch('/api/plaid/exchange-token', {
           method: 'POST',
@@ -63,7 +102,9 @@ export function PlaidLinkButton({
         // Auto-sync after connecting
         const syncRes = await fetch('/api/plaid/sync', { method: 'POST' })
         const syncData = await syncRes.json()
-        toast.success(`Imported ${syncData.synced} transactions`)
+        if (syncData.synced != null) {
+          toast.success(`Imported ${syncData.synced} transactions`)
+        }
         router.refresh()
       } catch (err: any) {
         toast.error(err.message ?? 'Failed to connect bank')
@@ -85,6 +126,10 @@ export function PlaidLinkButton({
       const res = await fetch('/api/plaid/create-link-token', { method: 'POST' })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
+
+      // Persist token in sessionStorage so we can restore it after the
+      // OAuth bank redirect (user leaves and returns to the app)
+      sessionStorage.setItem('plaid_link_token', data.link_token)
       setLinkToken(data.link_token)
     } catch (err: any) {
       toast.error(err.message ?? 'Failed to open bank connection')

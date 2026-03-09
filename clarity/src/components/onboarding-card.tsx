@@ -59,7 +59,7 @@ export function OnboardingCard({ bankConnected, gmailConnected, hasTransactions 
       done: hasTransactions,
       action: (
         <Button size="sm" variant="outline" className="h-8 text-xs shrink-0" asChild>
-          <Link href="/settings">Upload receipt</Link>
+          <Link href="/settings#receipt-upload">Upload receipt</Link>
         </Button>
       ),
     },

@@ -1,4 +1,10 @@
-export type TransactionSource = 'email' | 'upload'
+export type TransactionSource = 'email' | 'upload' | 'bank'
+
+export interface ReceiptItem {
+  name: string
+  price: number
+  quantity?: number
+}
 
 export type TransactionCategory =
   | 'Food'
@@ -22,6 +28,9 @@ export interface Transaction {
   custom_label: string | null
   source: TransactionSource
   raw_text: string | null
+  content_hash: string | null
+  items: ReceiptItem[] | null          // line items from receipt uploads
+  linked_transaction_id: string | null // future: link receipt ↔ bank transaction
   created_at: string
 }
 

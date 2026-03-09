@@ -4,13 +4,15 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { Loader2 } from 'lucide-react'
+import { Loader2, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { createClient } from '@/lib/supabase/client'
+
+type LoginStep = 'credentials' | 'mfa'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -20,14 +22,71 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
 
+  // MFA state
+  const [step, setStep] = useState<LoginStep>('credentials')
+  const [mfaFactorId, setMfaFactorId] = useState('')
+  const [mfaCode, setMfaCode] = useState('')
+  const [mfaLoading, setMfaLoading] = useState(false)
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) { toast.error(error.message); setLoading(false); return }
+    if (error) {
+      toast.error(error.message)
+      setLoading(false)
+      return
+    }
+
+    // Check if MFA is required
+    const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+    if (aalData?.nextLevel === 'aal2' && aalData.nextLevel !== aalData.currentLevel) {
+      // User has MFA enrolled — get the factor ID and show challenge
+      const { data: factorsData } = await supabase.auth.mfa.listFactors()
+      const totpFactor = factorsData?.totp?.[0]
+      if (totpFactor) {
+        setMfaFactorId(totpFactor.id)
+        setStep('mfa')
+        setLoading(false)
+        return
+      }
+    }
+
+    // No MFA required — go straight to dashboard
     toast.success('Welcome back!')
     router.push('/dashboard')
     router.refresh()
+  }
+
+  async function handleMFAVerify(e: React.FormEvent) {
+    e.preventDefault()
+    if (mfaCode.length !== 6) {
+      toast.error('Please enter the 6-digit code')
+      return
+    }
+    setMfaLoading(true)
+    try {
+      const { data: challengeData, error: challengeErr } = await supabase.auth.mfa.challenge({
+        factorId: mfaFactorId,
+      })
+      if (challengeErr) throw challengeErr
+
+      const { error: verifyErr } = await supabase.auth.mfa.verify({
+        factorId: mfaFactorId,
+        challengeId: challengeData.id,
+        code: mfaCode,
+      })
+      if (verifyErr) throw verifyErr
+
+      toast.success('Welcome back!')
+      router.push('/dashboard')
+      router.refresh()
+    } catch (err: any) {
+      toast.error(err.message ?? 'Invalid code — please try again')
+      setMfaCode('')
+    } finally {
+      setMfaLoading(false)
+    }
   }
 
   async function handleGoogleSignIn() {
@@ -39,6 +98,65 @@ export default function LoginPage() {
     if (error) { toast.error(error.message); setGoogleLoading(false) }
   }
 
+  // MFA challenge screen
+  if (step === 'mfa') {
+    return (
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <CardTitle>Two-factor authentication</CardTitle>
+              <CardDescription>Enter the code from your authenticator app</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleMFAVerify} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="mfa-code">6-digit code</Label>
+              <Input
+                id="mfa-code"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                placeholder="000000"
+                value={mfaCode}
+                onChange={e => setMfaCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                className="text-center text-xl tracking-[0.5em] font-mono"
+                autoFocus
+                autoComplete="one-time-code"
+              />
+              <p className="text-xs text-muted-foreground">
+                Open your authenticator app to find the current code.
+              </p>
+            </div>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={mfaLoading || mfaCode.length !== 6}
+            >
+              {mfaLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Verify
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter>
+          <button
+            className="text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline w-full text-center"
+            onClick={() => { setStep('credentials'); setMfaCode('') }}
+          >
+            ← Back to sign in
+          </button>
+        </CardFooter>
+      </Card>
+    )
+  }
+
+  // Default credentials screen
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>

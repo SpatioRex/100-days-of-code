@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -220,7 +220,7 @@ function BudgetCard({
       {/* Edit dialog */}
       <Dialog open={showEdit} onOpenChange={setShowEdit}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>Edit budget</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Edit budget</DialogTitle><DialogDescription className="sr-only">Update budget name, amount, category, and period.</DialogDescription></DialogHeader>
           <form onSubmit={handleEditSubmit} className="space-y-4 pt-2">
             <div className="space-y-1.5">
               <Label htmlFor="edit-bname">Name</Label>
@@ -466,6 +466,7 @@ function GoalCard({
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>{goal.emoji} {goal.name}</DialogTitle>
+            <DialogDescription className="sr-only">Log a contribution to this savings goal.</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleContribute} className="space-y-3 pt-1">
             <div className="space-y-1.5">
@@ -515,6 +516,7 @@ function GoalCard({
             <DialogTitle className="flex items-center gap-2">
               <History className="h-4 w-4" /> Contribution history
             </DialogTitle>
+            <DialogDescription className="sr-only">Past contributions to this savings goal.</DialogDescription>
           </DialogHeader>
           <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
             {goal.contributions.length === 0 ? (
@@ -550,7 +552,7 @@ function GoalCard({
       {/* Edit goal dialog */}
       <Dialog open={showEdit} onOpenChange={setShowEdit}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>Edit goal</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Edit goal</DialogTitle><DialogDescription className="sr-only">Update savings goal name, icon, and target amount.</DialogDescription></DialogHeader>
           <form onSubmit={handleEditSubmit} className="space-y-4 pt-2">
             <div className="space-y-1.5">
               <Label>Icon</Label>
@@ -629,7 +631,7 @@ function CreateBudgetModal({ open, onClose, onCreated }: {
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader><DialogTitle>New budget</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>New budget</DialogTitle><DialogDescription className="sr-only">Create a new spending budget with a name, amount, category, and period.</DialogDescription></DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           <div className="space-y-1.5">
             <Label htmlFor="bname">Name</Label>
@@ -715,7 +717,7 @@ function CreateGoalModal({ open, onClose, onCreated }: {
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader><DialogTitle>New savings goal</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>New savings goal</DialogTitle><DialogDescription className="sr-only">Create a new savings goal with a name, icon, and target amount.</DialogDescription></DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           <div className="space-y-1.5">
             <Label>Icon</Label>

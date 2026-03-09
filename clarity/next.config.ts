@@ -3,11 +3,21 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
-  { key: 'X-Frame-Options', value: 'DENY' },
+  // NOTE: X-Frame-Options DENY removed — it blocks Plaid Link's iframe (cdn.plaid.com)
+  // from communicating with the host page via postMessage.
+  // The CSP frame-ancestors directive below replaces it with equivalent protection.
+  {
+    key: 'Content-Security-Policy',
+    value: "frame-ancestors 'none'",
+  },
   { key: 'X-XSS-Protection', value: '1; mode=block' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   // Allow camera on same origin (needed for mobile receipt upload)
-  { key: 'Permissions-Policy', value: 'geolocation=(), microphone=(), camera=(self)' },
+  // Allow fullscreen for Plaid Link iframe (cdn.plaid.com)
+  {
+    key: 'Permissions-Policy',
+    value: 'geolocation=(), microphone=(), camera=(self), fullscreen=(self "https://cdn.plaid.com")',
+  },
   {
     key: 'Strict-Transport-Security',
     value: 'max-age=63072000; includeSubDomains; preload',

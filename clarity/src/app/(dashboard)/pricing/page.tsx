@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Check, Sparkles, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -51,7 +50,6 @@ function PricingCard({
   name, description, monthlyPrice, annualPrice, annualPerMonth,
   isAnnual, features, planKey, highlighted, currentPlan,
 }: PricingCardProps) {
-  const router = useRouter()
   const [loading, setLoading] = useState(false)
 
   async function handleUpgrade() {
@@ -65,7 +63,7 @@ function PricingCard({
       })
       const { url, error } = await res.json()
       if (error) throw new Error(error)
-      router.push(url)
+      window.location.href = url
     } catch (err: any) {
       toast.error(err?.message ?? 'Failed to start checkout')
       setLoading(false)

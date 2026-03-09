@@ -1,8 +1,19 @@
 import Stripe from 'stripe'
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2026-02-25.clover',
-})
+let _stripe: Stripe | null = null
+
+/** Lazily create a Stripe instance — safe during builds when env vars may be absent */
+export function getStripe(): Stripe {
+  if (!_stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('STRIPE_SECRET_KEY environment variable is not set')
+    }
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2026-02-25.clover',
+    })
+  }
+  return _stripe
+}
 
 export const STRIPE_PRICES = {
   plusMonthly: process.env.STRIPE_PLUS_MONTHLY_PRICE_ID!,

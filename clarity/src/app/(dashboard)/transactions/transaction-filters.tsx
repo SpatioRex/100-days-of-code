@@ -14,6 +14,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -348,6 +349,7 @@ export function TransactionFilters({ transactions: initial }: Props) {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Transaction</DialogTitle>
+            <DialogDescription className="sr-only">Edit transaction details including merchant, amount, date, category, and type.</DialogDescription>
           </DialogHeader>
           {editForm && (
             <div className="space-y-4 py-2">

@@ -4,12 +4,36 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
 })
 
+export interface ReceiptItem {
+  name: string
+  price: number
+  quantity?: number
+}
+
 export interface ExtractedTransaction {
   merchant: string
   amount: number
   date: string // YYYY-MM-DD
   category: 'Food' | 'Shopping' | 'Subscriptions' | 'Travel' | 'Utilities' | 'Entertainment' | 'Health' | 'Other'
   is_recurring: boolean
+  items?: ReceiptItem[] // line items (receipt uploads only — emails won't have these)
+}
+
+/** Safely parse the items array Claude returns, filtering out malformed entries. */
+function parseItems(raw: unknown): ReceiptItem[] | undefined {
+  if (!Array.isArray(raw) || raw.length === 0) return undefined
+  const items: ReceiptItem[] = []
+  for (const entry of raw) {
+    if (!entry || typeof entry !== 'object') continue
+    const obj = entry as Record<string, unknown>
+    if (!obj.name || obj.price === undefined) continue
+    items.push({
+      name: String(obj.name),
+      price: Number(obj.price),
+      ...(obj.quantity !== undefined ? { quantity: Number(obj.quantity) } : {}),
+    })
+  }
+  return items.length > 0 ? items : undefined
 }
 
 export async function extractFromEmail(emailText: string, fallbackDate?: string): Promise<ExtractedTransaction | null> {
@@ -88,6 +112,82 @@ ${emailBlocks}`,
   }
 }
 
+/**
+ * Extract a single transaction from multiple receipt photos in one Claude call.
+ * All images are treated as different sections of the same receipt.
+ */
+export async function extractFromFiles(
+  images: Array<{ base64Data: string; mediaType: 'image/jpeg' | 'image/png' | 'image/webp' | 'application/pdf' }>
+): Promise<ExtractedTransaction | null> {
+  if (images.length === 0) return null
+  if (images.length === 1) return extractFromFile(images[0].base64Data, images[0].mediaType)
+
+  try {
+    const imageBlocks = images.map(({ base64Data, mediaType }) => ({
+      type: 'image' as const,
+      source: {
+        type: 'base64' as const,
+        media_type: (mediaType === 'application/pdf' ? 'image/jpeg' : mediaType) as
+          'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif',
+        data: base64Data,
+      },
+    }))
+
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 512,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            ...imageBlocks,
+            {
+              type: 'text',
+              text: `These ${images.length} images are photos of the same receipt — each photo covers a different part of a long receipt. Combine all sections to extract the transaction details.
+
+Return ONLY a valid JSON object with these exact fields (no markdown, no explanation):
+{
+  "merchant": "Store or company name",
+  "amount": 12.99,
+  "date": "YYYY-MM-DD",
+  "category": one of ["Food", "Shopping", "Subscriptions", "Travel", "Utilities", "Entertainment", "Health", "Other"],
+  "is_recurring": true or false,
+  "items": [
+    { "name": "Item name", "price": 9.99, "quantity": 1 }
+  ]
+}
+
+Rules:
+- amount is the GRAND TOTAL paid (look for "Total", "Grand Total", "Amount Due" — usually on the last section/photo)
+- date in YYYY-MM-DD format; if not visible use today: ${new Date().toISOString().split('T')[0]}
+- is_recurring = true only if this is clearly a subscription or recurring charge
+- items: list every individual line item with its name, unit price, and quantity (default quantity to 1 if not shown). Omit tax, tip, discount, and subtotal lines — only include actual purchased items/services.
+- If no transaction is visible across any photo, return: {"error": "not_a_transaction"}`,
+            },
+          ],
+        },
+      ],
+    })
+
+    const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    const parsed = JSON.parse(text.trim())
+
+    if (parsed.error) return null
+    if (!parsed.merchant || parsed.amount === undefined) return null
+
+    return {
+      merchant: String(parsed.merchant),
+      amount: Number(parsed.amount),
+      date: String(parsed.date),
+      category: parsed.category ?? 'Other',
+      is_recurring: Boolean(parsed.is_recurring),
+      items: parseItems(parsed.items),
+    }
+  } catch {
+    return null
+  }
+}
+
 export async function extractFromFile(
   base64Data: string,
   mediaType: 'image/jpeg' | 'image/png' | 'image/webp' | 'application/pdf'
@@ -104,7 +204,7 @@ export async function extractFromFile(
               type: 'image',
               source: {
                 type: 'base64',
-                media_type: mediaType === 'application/pdf' ? 'image/jpeg' : mediaType,
+                media_type: (mediaType === 'application/pdf' ? 'image/jpeg' : mediaType) as 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif',
                 data: base64Data,
               },
             },
@@ -118,13 +218,17 @@ Return ONLY a valid JSON object with these exact fields (no markdown, no explana
   "amount": 12.99,
   "date": "YYYY-MM-DD",
   "category": one of ["Food", "Shopping", "Subscriptions", "Travel", "Utilities", "Entertainment", "Health", "Other"],
-  "is_recurring": true or false
+  "is_recurring": true or false,
+  "items": [
+    { "name": "Item name", "price": 9.99, "quantity": 1 }
+  ]
 }
 
 Rules:
 - amount should be the total amount paid (a number, no currency symbols)
 - date in YYYY-MM-DD format; if not found use today: ${new Date().toISOString().split('T')[0]}
 - is_recurring = true only if this is clearly a subscription
+- items: list every individual line item with its name, unit price, and quantity (default quantity to 1 if not shown). Omit tax, tip, discounts, and subtotal rows — only actual purchased items/services.
 - If no transaction is visible, return: {"error": "not_a_transaction"}`,
             },
           ],
@@ -144,6 +248,7 @@ Rules:
       date: String(parsed.date),
       category: parsed.category ?? 'Other',
       is_recurring: Boolean(parsed.is_recurring),
+      items: parseItems(parsed.items),
     }
   } catch {
     return null
