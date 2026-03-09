@@ -135,7 +135,7 @@ export async function extractFromFiles(
 
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 512,
+      max_tokens: 1024,
       messages: [
         {
           role: 'user',
@@ -195,7 +195,7 @@ export async function extractFromFile(
   try {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 512,
+      max_tokens: 1024,
       messages: [
         {
           role: 'user',

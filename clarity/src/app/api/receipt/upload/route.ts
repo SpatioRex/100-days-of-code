@@ -120,6 +120,28 @@ export async function POST(request: Request) {
       )
     }
 
+    // Secondary semantic dedup — catches re-uploads of receipts that predate content_hash
+    const { data: semanticDup } = await supabase
+      .from('transactions')
+      .select('id, merchant, amount, date')
+      .eq('user_id', user.id)
+      .eq('source', 'upload')
+      .ilike('merchant', extracted.merchant)
+      .eq('amount', extracted.amount)
+      .eq('date', extracted.date)
+      .maybeSingle()
+
+    if (semanticDup) {
+      return NextResponse.json(
+        {
+          error: `This receipt was already uploaded (${semanticDup.merchant} — $${Number(semanticDup.amount).toFixed(2)} on ${semanticDup.date}).`,
+          duplicate: true,
+          existingTransaction: semanticDup,
+        },
+        { status: 409 }
+      )
+    }
+
     const fileLabel = files.length === 1 ? files[0].name : `${files.length}-photo receipt`
     const { data, error } = await supabase.from('transactions').insert({
       user_id: user.id,
