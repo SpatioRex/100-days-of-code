@@ -497,7 +497,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
                     </p>
                     {incomeLastTx && (
                       <p className="text-[11px] text-muted-foreground mt-0.5">
-                        Last: ${Number(incomeLastTx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} on {format(new Date(incomeLastTx.date), 'MMM d, yyyy')}
+                        Last: ${Number(incomeLastTx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} on {format(new Date(incomeLastTx.date + 'T12:00:00'), 'MMM d, yyyy')}
                       </p>
                     )}
                   </div>
@@ -812,7 +812,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate">{t.merchant}</p>
                         <p className="text-xs text-muted-foreground">
-                          {format(new Date(t.date), 'MMM d')} · {t.category}
+                          {format(new Date(t.date + 'T12:00:00'), 'MMM d')} · {t.category}
                           {t.custom_label && <span className="ml-1 text-primary">· {t.custom_label}</span>}
                         </p>
                       </div>

@@ -172,7 +172,7 @@ function SubscriptionCard({ subscription: sub, cancelUrl }: { subscription: Tran
           <div className="min-w-0 flex-1">
             <p className="font-semibold truncate">{sub.merchant}</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Last charged {format(new Date(sub.date), 'MMM d, yyyy')}
+              Last charged {format(new Date(sub.date + 'T12:00:00'), 'MMM d, yyyy')}
             </p>
           </div>
           <Badge variant="secondary" className="ml-2 shrink-0 text-xs">

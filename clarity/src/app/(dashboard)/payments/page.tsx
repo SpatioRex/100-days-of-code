@@ -144,7 +144,7 @@ function PaymentCard({ payment: p }: { payment: Transaction }) {
               </div>
             </div>
             <p className="text-xs text-muted-foreground mt-1.5">
-              Last charged {format(new Date(p.date), 'MMM d, yyyy')}
+              Last charged {format(new Date(p.date + 'T12:00:00'), 'MMM d, yyyy')}
             </p>
           </div>
           <Badge variant="outline" className="ml-2 shrink-0 text-xs">

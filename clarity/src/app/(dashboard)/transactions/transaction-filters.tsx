@@ -27,10 +27,10 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Label } from '@/components/ui/label'
-import { Search, RefreshCw, X, Inbox, Pencil, Loader2, Trash2 } from 'lucide-react'
+import { Search, RefreshCw, X, Inbox, Pencil, Loader2, Trash2, Receipt } from 'lucide-react'
 import { format, startOfMonth, subMonths, parseISO } from 'date-fns'
 import { toast } from 'sonner'
-import type { Transaction, TransactionCategory } from '@/types/database'
+import type { Transaction, TransactionCategory, ReceiptItem } from '@/types/database'
 
 const CATEGORIES: TransactionCategory[] = ['Food', 'Shopping', 'Subscriptions', 'Travel', 'Utilities', 'Entertainment', 'Health', 'Other']
 const SOURCE_LABELS: Record<string, string> = { email: 'Gmail', upload: 'Upload', bank: 'Bank' }
@@ -163,7 +163,7 @@ export function TransactionFilters({ transactions: initial }: Props) {
     return transactions.filter((t) => {
       if (q) {
         // Format the date multiple ways so users can search "Jan 5", "January", "2025-01-05", etc.
-        const dateObj = parseISO(t.date)
+        const dateObj = parseISO(t.date + 'T12:00:00')
         const dateFormats = [
           format(dateObj, 'MMM d yyyy'),      // "Jan 5 2025"
           format(dateObj, 'MMMM d yyyy'),     // "January 5 2025"
@@ -302,6 +302,11 @@ export function TransactionFilters({ transactions: initial }: Props) {
                               <RefreshCw className="h-2.5 w-2.5 mr-1" />{typeInfo.label}
                             </Badge>
                           )}
+                          {t.items && t.items.length > 0 && (
+                            <span title={`${t.items.length} item${t.items.length !== 1 ? 's' : ''}`} className="text-muted-foreground shrink-0">
+                              <Receipt className="h-3 w-3" />
+                            </span>
+                          )}
                         </div>
                         {t.custom_label && (
                           <span className="text-xs text-primary font-normal">{t.custom_label}</span>
@@ -309,7 +314,7 @@ export function TransactionFilters({ transactions: initial }: Props) {
                       </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
-                      {format(parseISO(t.date), 'MMM d, yyyy')}
+                      {format(parseISO(t.date + 'T12:00:00'), 'MMM d, yyyy')}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-xs">{t.category}</Badge>
@@ -421,6 +426,32 @@ export function TransactionFilters({ transactions: initial }: Props) {
                   onChange={(e) => setEditForm({ ...editForm, custom_label: e.target.value })}
                 />
               </div>
+
+              {/* Receipt line items — shown only when the transaction has items */}
+              {editingTx?.items && editingTx.items.length > 0 && (
+                <div className="space-y-1.5">
+                  <Label className="flex items-center gap-1.5">
+                    <Receipt className="h-3.5 w-3.5" /> Receipt Items
+                  </Label>
+                  <div className="rounded-md border divide-y text-sm">
+                    {editingTx.items.map((item: ReceiptItem, i: number) => (
+                      <div key={i} className="flex items-center justify-between px-3 py-2 gap-2">
+                        <span className="text-foreground">
+                          {item.quantity && item.quantity > 1 && (
+                            <span className="text-muted-foreground mr-1">{item.quantity}×</span>
+                          )}
+                          {item.name}
+                        </span>
+                        <span className="font-medium shrink-0">${Number(item.price).toFixed(2)}</span>
+                      </div>
+                    ))}
+                    <div className="flex items-center justify-between px-3 py-2 gap-2 bg-muted/30">
+                      <span className="text-muted-foreground text-xs font-medium">Total</span>
+                      <span className="font-semibold">${Number(editingTx.amount).toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
           <DialogFooter className="flex items-center justify-between sm:justify-between gap-2">

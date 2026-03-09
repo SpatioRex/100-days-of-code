@@ -525,7 +525,7 @@ function GoalCard({
                   <div className="min-w-0">
                     <p className="text-sm font-medium">${Number(c.amount).toFixed(2)}</p>
                     <p className="text-xs text-muted-foreground">
-                      {format(new Date(c.date), 'MMM d, yyyy')}
+                      {format(new Date(c.date + 'T12:00:00'), 'MMM d, yyyy')}
                       {c.note && ` · ${c.note}`}
                     </p>
                   </div>
