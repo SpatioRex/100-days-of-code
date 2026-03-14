@@ -102,7 +102,9 @@ export function PlaidLinkButton({
         // Auto-sync after connecting
         const syncRes = await fetch('/api/plaid/sync', { method: 'POST' })
         const syncData = await syncRes.json()
-        if (syncData.synced != null) {
+        if (syncData.product_not_ready) {
+          toast.info('Your bank is preparing your transactions. Come back in 1–2 minutes and click Sync.')
+        } else if (syncData.synced != null) {
           toast.success(`Imported ${syncData.synced} transactions`)
         }
         router.refresh()

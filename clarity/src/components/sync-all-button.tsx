@@ -35,7 +35,9 @@ export function SyncAllButton({ hasGmail, hasBank }: Props) {
       const errors: string[] = []
 
       if (hasBank) {
-        if (bankResult.status === 'fulfilled' && bankResult.value?.synced !== undefined) {
+        if (bankResult.status === 'fulfilled' && bankResult.value?.product_not_ready) {
+          errors.push('Bank: transactions still being prepared — try again in 1–2 minutes')
+        } else if (bankResult.status === 'fulfilled' && bankResult.value?.synced !== undefined) {
           bankSynced = bankResult.value.synced
         } else {
           const msg = bankResult.status === 'fulfilled' ? bankResult.value?.error : bankResult.reason?.message

@@ -32,7 +32,11 @@ export function BankCard({ connections }: BankCardProps) {
       const res = await fetch('/api/plaid/sync', { method: 'POST' })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      toast.success(`Synced ${data.synced} new transaction${data.synced !== 1 ? 's' : ''}`)
+      if (data.product_not_ready) {
+        toast.info('Your bank is still preparing transactions. Try again in 1–2 minutes.')
+      } else {
+        toast.success(`Synced ${data.synced} new transaction${data.synced !== 1 ? 's' : ''}`)
+      }
       router.refresh()
     } catch (err: any) {
       toast.error(err.message ?? 'Sync failed')

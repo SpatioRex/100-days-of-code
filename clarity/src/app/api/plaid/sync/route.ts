@@ -75,6 +75,8 @@ export async function POST() {
   let newSubscriptions = 0
   let largeTransactions = 0
 
+  let productNotReady = false
+
   for (const conn of connections as any[]) {
     try {
       const startDate = new Date()
@@ -172,8 +174,13 @@ export async function POST() {
         .from('bank_connections')
         .update({ last_synced_at: new Date().toISOString() })
         .eq('id', conn.id)
-    } catch (err) {
-      console.error(`Plaid sync error for connection ${conn.id}:`, err)
+    } catch (err: any) {
+      const code = err?.response?.data?.error_code
+      if (code === 'PRODUCT_NOT_READY') {
+        productNotReady = true
+      } else {
+        console.error(`Plaid sync error for connection ${conn.id}:`, err)
+      }
     }
   }
 
@@ -192,5 +199,6 @@ export async function POST() {
     synced: totalSynced,
     skipped: totalSkipped,
     alerts: { newSubscriptions, largeTransactions },
+    ...(productNotReady && { product_not_ready: true }),
   })
 }
