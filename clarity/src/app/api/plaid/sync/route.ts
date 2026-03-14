@@ -4,7 +4,8 @@ import { plaidClient } from '@/lib/plaid'
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
 import { sendNewSubscriptionAlert, sendLargeTransactionAlert } from '@/lib/resend'
 
-const CATEGORY_MAP: Record<string, string> = {
+// Legacy category taxonomy (tx.category[0])
+const LEGACY_CATEGORY_MAP: Record<string, string> = {
   'Food and Drink': 'Food',
   'Shops': 'Shopping',
   'Travel': 'Travel',
@@ -18,10 +19,37 @@ const CATEGORY_MAP: Record<string, string> = {
   'Tax': 'Utilities',
 }
 
-function mapCategory(plaidCategories: string[] | null): string {
-  if (!plaidCategories?.length) return 'Other'
-  const top = plaidCategories[0]
-  return CATEGORY_MAP[top] ?? 'Other'
+// Newer personal_finance_category.primary taxonomy
+const PFC_CATEGORY_MAP: Record<string, string> = {
+  'FOOD_AND_DRINK': 'Food',
+  'GENERAL_MERCHANDISE': 'Shopping',
+  'TRAVEL': 'Travel',
+  'TRANSPORTATION': 'Travel',
+  'ENTERTAINMENT': 'Entertainment',
+  'MEDICAL': 'Health',
+  'PERSONAL_CARE': 'Health',
+  'RENT_AND_UTILITIES': 'Utilities',
+  'GENERAL_SERVICES': 'Utilities',
+  'GOVERNMENT_AND_NON_PROFIT': 'Other',
+  'HOME_IMPROVEMENT': 'Other',
+  'LOAN_PAYMENTS': 'Other',
+  'BANK_FEES': 'Other',
+  'TRANSFER_IN': 'Other',
+  'TRANSFER_OUT': 'Other',
+  'INCOME': 'Other',
+  'SUBSCRIPTION': 'Subscriptions',
+}
+
+function mapCategory(tx: { category?: string[] | null, personal_finance_category?: { primary: string } | null }): string {
+  // Prefer newer personal_finance_category when available
+  if (tx.personal_finance_category?.primary) {
+    return PFC_CATEGORY_MAP[tx.personal_finance_category.primary] ?? 'Other'
+  }
+  // Fall back to legacy category array
+  if (tx.category?.length) {
+    return LEGACY_CATEGORY_MAP[tx.category[0]] ?? 'Other'
+  }
+  return 'Other'
 }
 
 function isLikelyRecurring(name: string, categories: string[] | null): boolean {
@@ -121,7 +149,7 @@ export async function POST() {
             merchant,
             amount,
             date: tx.date,
-            category: mapCategory(tx.category ?? null),
+            category: mapCategory(tx),
             is_recurring: isRecurring,
             source: 'bank',
             raw_text: null,
